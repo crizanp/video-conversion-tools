@@ -1,4 +1,5 @@
-import { ArrowRight, UploadCloud } from 'lucide-react';
+import Link from 'next/link';
+import { UploadCloud } from 'lucide-react';
 
 export default function FileConverterHero({
   title,
@@ -6,15 +7,13 @@ export default function FileConverterHero({
   buttonText = "Convert MKV File",
   image = "/api/placeholder/500/350",
   imageAlt = "File converter illustration",
+  link = "/convert" // Default fallback
 }) {
   return (
-    <div className="bg-white  py-14 md:py-24" id='features'>
+    <div className="bg-white py-14 md:py-24" id='features'>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Two-column flex container */}
         <div className="flex flex-col md:flex-row gap-8 items-center">
-          {/* Left side - Content */}
           <div className="md:w-1/2 text-left">
-            {/* Heading */}
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight">
               <span className="block text-gray-900">{title}</span>
               <span className="block mt-1">
@@ -23,24 +22,23 @@ export default function FileConverterHero({
                 </span>
               </span>
             </h1>
-           
-            {/* Description */}
+
             <p className="text-xl md:text-2xl max-w-lg text-gray-700 font-light py-4">
               {description}
             </p>
-           
-            {/* Button */}
-            <button className="mt-4 px-6 py-3 bg-blue-500 hover:bg-blue-500 text-white font-medium rounded-lg flex items-center gap-2 transition-colors">
-  {buttonText}
-  <UploadCloud size={16} />
-</button>
+
+            <Link href={link}>
+              <button className="mt-4 px-6 py-3 cursor-pointer bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg flex items-center gap-2 transition-colors">
+                {buttonText}
+                <UploadCloud size={16} />
+              </button>
+            </Link>
           </div>
-         
-          {/* Right side - Image */}
-           <div className="relative flex justify-center items-center">
+
+          <div className="relative flex justify-center items-center">
             <img
-              src="https://cdn-site-assets.veed.io/cdn-cgi/image/width=1024,quality=75,format=auto/MKV_to_MP_4_bdd29d1ce7/MKV_to_MP_4_bdd29d1ce7.png"
-              alt="Video Formats Illustration"
+              src={image}
+              alt={imageAlt}
               className="w-full max-w-md md:max-w-xl lg:max-w-2xl object-contain"
             />
           </div>
