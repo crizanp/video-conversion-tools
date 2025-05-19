@@ -5,6 +5,9 @@ import { Film, Upload, Check, X, Download, Play, Settings, AlertCircle, Monitor,
 import FileConverterHero from '@/components/convert/hero';
 import Footer from '@/components/Footer';
 import ConversionNavbar from '@/components/convert/ConversionNavbar';
+import ToolsNavbar from '@/components/convert/toolsNavbar';
+import HeroSection from '@/components/tools/Hero';
+import FeaturesSection from '@/components/tools/FeaturesSection';
 
 export default function MkvToMp4Converter() {
     const [selectedFiles, setSelectedFiles] = useState([]);
@@ -82,44 +85,7 @@ export default function MkvToMp4Converter() {
     const handleQualityChange = (quality) => {
         setVideoQuality(quality);
     };
-    const qualityConfigs = {
-        high: {
-            label: 'High',
-            resolution: '1080p',
-            bitrate: '8 Mbps',
-            tooltip: 'Best quality, larger file size',
-            compressionFactor: 1.0,
-            colorDepth: '10-bit',
-            audioQuality: '320 kbps',
-            gradientClasses: 'from-blue-500 to-indigo-500',
-            borderClasses: 'border-blue-500',
-            processingTime: 1.5
-        },
-        medium: {
-            label: 'Medium',
-            resolution: '720p',
-            bitrate: '4 Mbps',
-            tooltip: 'Good balance of quality and size',
-            compressionFactor: 1.6,
-            colorDepth: '8-bit',
-            audioQuality: '192 kbps',
-            gradientClasses: 'from-blue-500 to-cyan-500',
-            borderClasses: 'border-blue-500',
-            processingTime: 1.0
-        },
-        low: {
-            label: 'Low',
-            resolution: '480p',
-            bitrate: '1.5 Mbps',
-            tooltip: 'Smaller file size, reduced quality',
-            compressionFactor: 2.3,
-            colorDepth: '8-bit',
-            audioQuality: '128 kbps',
-            gradientClasses: 'from-teal-500 to-green-500',
-            borderClasses: 'border-teal-500',
-            processingTime: 0.7
-        }
-    };
+
     // Convert video format (simulated for frontend demo)
     const convertVideo = async (file) => {
         return new Promise((resolve) => {
@@ -163,7 +129,6 @@ export default function MkvToMp4Converter() {
                     console.error(`Error converting file ${file.name}:`, error);
                 }
             }
-
             // Generate the ZIP file
             setStatus('Creating ZIP file...');
             const zipBlob = await zip.generateAsync({ type: 'blob' });
@@ -199,56 +164,83 @@ export default function MkvToMp4Converter() {
         if (fileInputRef.current) fileInputRef.current.value = '';
     };
 
-    // Get the quality info for tooltips and display
-    const getQualityInfo = (quality) => {
-        switch (quality) {
-            case 'high':
-                return { label: 'High', resolution: '1080p', bitrate: '8 Mbps', tooltip: 'Best quality, larger file size' };
-            case 'medium':
-                return { label: 'Medium', resolution: '720p', bitrate: '5 Mbps', tooltip: 'Good balance of quality and size' };
-            case 'low':
-                return { label: 'Low', resolution: '480p', bitrate: '2 Mbps', tooltip: 'Smaller file size, reduced quality' };
-            default:
-                return { label: 'Custom', resolution: '', bitrate: '', tooltip: '' };
-        }
-    };
+    const featuresData = [
+        {
+            icon: (
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path d="M4 4v16h16V4H4zm8 12l-4-4h3V8h2v4h3l-4 4z" />
+                </svg>
+            ),
+            title: "Instant Conversion",
+            description: "Convert MKV files to MP4 in seconds with blazing-fast speed and zero quality loss.",
+        },
+        {
+            icon: (
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path d="M12 8v4l3 3m-3-7a9 9 0 100 18 9 9 0 000-18z" />
+                </svg>
+            ),
+            title: "High Quality Output",
+            description: "Enjoy crystal-clear video with optimal compression, perfect for playback or sharing.",
+        },
+        {
+            icon: (
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path d="M3 10h18M3 6h18M9 14h6M9 18h6" />
+                </svg>
+            ),
+            title: "Simple & Free",
+            description: "No downloads, no signups, no watermarks. Just upload and convert — completely free!",
+        },
+        {
+            icon: (
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path d="M5 13l4 4L19 7" />
+                </svg>
+            ),
+            title: "Safe & Secure",
+            description: "All files are automatically deleted after conversion. Your privacy is our top priority.",
+        },
+        {
+            icon: (
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path d="M9 12l2 2 4-4M7 17h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+            ),
+            title: "No Watermarks",
+            description: "Get your MP4 files without any branding or annoying overlays — 100% clean.",
+        },
+        {
+            icon: (
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            ),
+            title: "Multi-File Support",
+            description: "Upload and convert multiple MKV files at once — batch processing made easy.",
+        },
+    ];
+
 
     return (
         <>
-            <ConversionNavbar />
+            <ToolsNavbar />
             <div className="bg-white min-h-screen flex flex-col items-start py-8 px-4">
                 <div className="max-w-7xl px-4 sm:px-6 lg:px-8 mx-auto w-full">
                     {/* Main Header */}
-                    <div className="flex flex-col md:flex-row gap-8 items-center">
-                        {/* Left side - Content */}
-                        <div className="md:w-1/2 text-left">
-                            {/* Heading */}
-                            <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight">
-                                <span className="block text-gray-900">MKV to MP4
-                                </span>
-                                <span className="block mt-1">
-                                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-800 via-cyan-700 to-blue-600">
-                                        Instantly
-                                    </span>
-                                </span>
-                            </h1>
-                            {/* Description */}
-                            <p className="text-xl md:text-2xl max-w-lg text-gray-700 font-light py-4">
-                                Convert MKV files to MP4 for smoother playback and sharing. Fast, free, and high-quality conversion with no watermarks.
-                            </p>
-                        </div>
-                        {/* Right side - Image */}
-                        <div className="relative flex justify-center items-center my-12">
-                            <img
-                                src="https://cdn-site-assets.veed.io/cdn-cgi/image/width=1024,quality=75,format=auto/MKV_to_MP_4_bdd29d1ce7/MKV_to_MP_4_bdd29d1ce7.png"
-                                alt="Video Formats Illustration"
-                                className="w-full max-w-md md:max-w-xl lg:max-w-2xl object-contain"
-                            />
-                        </div>
-                    </div>
-
+                    <HeroSection
+                        title="MKV to MP4"
+                        highlightText="Instantly"
+                        description="Convert MKV files to MP4 for smoother playback and sharing. Fast, free, and high-quality conversion with no watermarks."
+                        imageSrc="https://cdn-site-assets.veed.io/cdn-cgi/image/width=1024,quality=75,format=auto/MKV_to_MP_4_bdd29d1ce7/MKV_to_MP_4_bdd29d1ce7.png"
+                    />
+                    <FeaturesSection
+                        title="Features"
+                        description="Experience lightning-fast conversion with cutting-edge features and an intuitive interface."
+                        features={featuresData}
+                    />
                     {/* Main Content */}
-                    <div className="w-full bg-white overflow-hidden mb-8 rounded-lg ">
+                    <div className="w-full bg-white overflow-hidden my-8 rounded-lg " id='convert'>
                         {/* Upload Area */}
                         <div
                             ref={fileDropRef}
@@ -282,15 +274,12 @@ export default function MkvToMp4Converter() {
                                         className="hidden"
                                     />
                                 </label>
-
                                 <p className="text-gray-400 text-sm">Max 500MB per file, multiple files allowed</p>
                             </div>
                         </div>
-
-
                         {/* Selected Files */}
                         {selectedFiles.length > 0 && (
-                            <div className="border-t border-blue-100 p-4">
+                            <div className="border-t border-blue-100 p-4 py-8">
                                 <div className="flex items-center mb-3">
                                     <div className="p-1 bg-gradient-to-r from-gray-500 to-gray-500 rounded-full mr-2">
                                         <Film size={18} className="text-white" />
@@ -299,7 +288,6 @@ export default function MkvToMp4Converter() {
                                         Selected Files ({selectedFiles.length})
                                     </h3>
                                 </div>
-
                                 <div className="max-h-48 overflow-y-auto pr-1">
                                     {selectedFiles.map((file, index) => (
                                         <div key={index} className="flex items-center justify-between py-3 px-4 mb-2 rounded-lg bg-gradient-to-r from-indigo-50 to-blue-50 border border-indigo-100">
@@ -329,75 +317,24 @@ export default function MkvToMp4Converter() {
                                 </div>
                             </div>
                         )}
-
-                        {/* Quality Options */}
-                        {/* Quality Options */}
-                        <div className="border-t border-blue-100 p-4">
-                            <div className="flex items-center mb-3">
-                                <div className="p-1 bg-blue-500 rounded-full mr-2">
-                                    <Settings size={18} className="text-white" />
-                                </div>
-                                <h3 className="text-lg font-bold text-gray-800">Video Quality</h3>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                {Object.keys(qualityConfigs).map(quality => {
-                                    const qualityInfo = getQualityInfo(quality);
-                                    return (
-                                        <div
-                                            key={quality}
-                                            className={`border rounded-lg p-4 cursor-pointer transition-all duration-300 hover:shadow-md ${videoQuality === quality
-                                                ? 'border-indigo-300 bg-gradient-to-r from-indigo-50 to-blue-50 shadow-md'
-                                                : 'border-gray-200 hover:border-indigo-200'
-                                                }`}
-                                            onClick={() => !isConverting && handleQualityChange(quality)}
-                                        >
-                                            <div className="flex items-center">
-                                                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${videoQuality === quality ? qualityInfo.borderClasses : 'border-gray-400'}`}>
-                                                    {videoQuality === quality && <div className={`w-3 h-3 rounded-full bg-gradient-to-r ${qualityInfo.gradientClasses}`}></div>}
-                                                </div>
-                                                <span className="ml-2 font-bold text-indigo-800">{qualityInfo.label}</span>
-                                                {quality === 'high' && (
-                                                    <span className="ml-auto text-xs bg-gradient-to-r from-blue-100 to-indigo-100 text-indigo-800 px-2 py-1 rounded-full font-medium">
-                                                        Recommended
-                                                    </span>
-                                                )}
-                                            </div>
-
-                                            <div className="mt-3 text-sm">
-                                                <div className="grid grid-cols-2 gap-2">
-                                                    <div className="text-black">Resolution:</div>
-                                                    <div className="font-medium text-indigo-800">{qualityInfo.resolution}</div>
-                                                    <div className="text-black">Bitrate:</div>
-                                                    <div className="font-medium text-indigo-800">{qualityInfo.bitrate}</div>
-                                                    <div className="text-black">Audio:</div>
-                                                    <div className="font-medium text-indigo-800">{qualityInfo.audioQuality}</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </div>
-
                         {/* Action Buttons */}
-                        <div className="flex flex-col sm:flex-row gap-4 p-4 border-t border-blue-100">
+                        <div className="flex flex-col sm:flex-row justify-center items-center gap-6 p-6 my-6 border-blue-100 text-center">
                             <button
-                                className={`py-3 px-6 rounded-full text-base font-bold flex items-center justify-center transition-all duration-300 shadow-md ${!selectedFiles.length || isConverting
+                                className={`py-4 px-8 text-lg sm:text-xl cursor-pointer rounded-full font-bold flex items-center justify-center transition-all duration-300 shadow-lg ${!selectedFiles.length || isConverting
                                     ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                    : 'bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white transform hover:-translate-y-1 hover:shadow-lg'
+                                    : 'bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white transform hover:-translate-y-1 hover:shadow-xl'
                                     }`}
                                 onClick={performConversion}
                                 disabled={isConverting || !selectedFiles.length}
                             >
                                 {isConverting ? (
                                     <>
-                                        <div className="mr-2 w-5 h-5 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
+                                        <div className="mr-3 w-6 h-6 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
                                         Converting...
                                     </>
                                 ) : (
                                     <>
-                                        <Film size={20} className="mr-2" />
+                                        <Film size={24} className="mr-3" />
                                         Convert to MP4
                                     </>
                                 )}
@@ -405,9 +342,9 @@ export default function MkvToMp4Converter() {
 
                             {selectedFiles.length > 0 && (
                                 <button
-                                    className={`py-3 px-6 rounded-full font-bold transition-all duration-300 ${isConverting
+                                    className={`py-4 px-8 text-lg sm:text-xl cursor-pointer rounded-full font-bold transition-all duration-300 ${isConverting
                                         ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                        : 'bg-gradient-to-r from-pink-100 to-indigo-100 text-indigo-700 hover:from-pink-200 hover:to-indigo-200 hover:shadow-md transform hover:-translate-y-1'
+                                        : 'bg-gradient-to-r from-pink-200 to-indigo-200 text-indigo-700 hover:from-pink-300 hover:to-indigo-300 hover:shadow-lg transform hover:-translate-y-1'
                                         }`}
                                     onClick={handleReset}
                                     disabled={isConverting}
@@ -416,6 +353,7 @@ export default function MkvToMp4Converter() {
                                 </button>
                             )}
                         </div>
+
 
                         {/* Progress Bar */}
                         {isConverting && progress > 0 && (
@@ -431,12 +369,6 @@ export default function MkvToMp4Converter() {
                                 </div>
                             </div>
                         )}
-
-                        {/* Download Area */}
-
-
-                        {/* Status Message */}
-
                     </div>
 
                     {convertedFile && (
@@ -457,7 +389,7 @@ export default function MkvToMp4Converter() {
                                         </p>
 
                                         <button
-                                            className="bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white py-3 px-6 rounded-full font-bold inline-flex items-center transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-1"
+                                            className="bg-gradient-to-r from-indigo-600 to-blue-600 cursor-pointer hover:from-indigo-700 hover:to-blue-700 text-white py-3 px-6 rounded-full font-bold inline-flex items-center transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-1"
                                             onClick={handleDownload}
                                         >
                                             <Download size={20} className="mr-2" />
@@ -468,7 +400,7 @@ export default function MkvToMp4Converter() {
                             </div>
                         </div>
                     )} {status && !convertedFile && (
-                        <div className="border-t border-blue-100 px-4 pb-4">
+                        <div className="px-4 pb-4">
                             <div className="flex items-center p-3 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 text-indigo-700">
                                 {isConverting ? (
                                     <div className="w-4 h-4 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin mr-3"></div>
@@ -479,10 +411,8 @@ export default function MkvToMp4Converter() {
                             </div>
                         </div>
                     )}
-
                 </div>
             </div>
-
             <Footer />
         </>
     );
