@@ -91,6 +91,12 @@ export default function Mp4ToMkvConverter() {
             }, 2000);
         });
     };
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const handleFileInputClick = (e) => {
+        if (isIOS) {
+            e.stopPropagation();
+        }
+    };
 
     // Perform the conversion
     const performConversion = async () => {
@@ -245,7 +251,17 @@ export default function Mp4ToMkvConverter() {
                                 <p className="text-indigo-600 text-lg">Drag & drop or click to select</p>
 
                                 <label
-                                    onClick={(e) => e.stopPropagation()}
+
+                                    // Add this to the label that triggers file selection
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (isIOS) {
+                                            // Ensure proper focus for iOS
+                                            setTimeout(() => {
+                                                fileInputRef.current?.click();
+                                            }, 100);
+                                        }
+                                    }}
                                     className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white py-3 px-6 rounded-full font-bold inline-flex items-center cursor-pointer transition-all duration-300 shadow-md hover:shadow-xl transform hover:-translate-y-1"
                                 >
                                     <Upload size={20} className="mr-2" />
@@ -255,9 +271,11 @@ export default function Mp4ToMkvConverter() {
                                         accept=".mp4,video/mp4"
                                         onChange={handleFileSelect}
                                         ref={fileInputRef}
-                                        multiple
+                                        multiple={!isIOS} // iOS doesn't support multiple file selection well
                                         className="hidden"
+                                        onClick={handleFileInputClick}
                                     />
+
                                 </label>
                                 <p className="text-gray-400 text-sm">Max 500MB per file, multiple files allowed</p>
                             </div>
