@@ -9,7 +9,7 @@ import ToolsNavbar from '@/components/convert/toolsNavbar';
 import HeroSection from '@/components/tools/Hero';
 import FeaturesSection from '@/components/tools/FeaturesSection';
 
-export default function MkvToMp4Converter() {
+export default function AviToMp4Converter() {
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [isConverting, setIsConverting] = useState(false);
     const [status, setStatus] = useState('');
@@ -25,7 +25,7 @@ export default function MkvToMp4Converter() {
         const validFiles = filterValidFiles(files);
 
         if (validFiles.length === 0) {
-            setStatus('Please select valid MKV video files.');
+            setStatus('Please select valid AVI video files.');
             return;
         }
 
@@ -34,12 +34,12 @@ export default function MkvToMp4Converter() {
         setConvertedFile(null);
     };
 
-    // Filter files to ensure only MKV files are selected
+    // Filter files to ensure only AVI files are selected
     const filterValidFiles = (files) => {
         return files.filter(file => {
             const fileName = file.name.toLowerCase();
             const fileType = file.type.toLowerCase();
-            return fileType === 'video/x-matroska' || fileName.endsWith('.mkv');
+            return fileType === 'video/x-msvideo' || fileName.endsWith('.avi');
         });
     };
 
@@ -72,7 +72,7 @@ export default function MkvToMp4Converter() {
         const validFiles = filterValidFiles(files);
 
         if (validFiles.length === 0) {
-            setStatus('Please drop valid MKV video files.');
+            setStatus('Please drop valid AVI video files.');
             return;
         }
 
@@ -98,7 +98,7 @@ export default function MkvToMp4Converter() {
     // Perform the conversion
     const performConversion = async () => {
         if (selectedFiles.length === 0) {
-            setStatus('Please select MKV files to convert.');
+            setStatus('Please select AVI files to convert.');
             return;
         }
 
@@ -118,7 +118,7 @@ export default function MkvToMp4Converter() {
                     const convertedFile = await convertVideo(file);
 
                     // Add the "converted" file to the ZIP
-                    const fileName = file.name.replace(/\.mkv$/i, '.mp4');
+                    const fileName = file.name.replace(/\.avi$/i, '.mp4');
                     zip.file(fileName, convertedFile);
 
                     // Update progress
@@ -172,7 +172,7 @@ export default function MkvToMp4Converter() {
                 </svg>
             ),
             title: "Instant Conversion",
-            description: "Convert MKV files to MP4 in seconds with blazing-fast speed and zero quality loss.",
+            description: "Convert AVI files to MP4 in seconds with blazing-fast speed and zero quality loss.",
         },
         {
             icon: (
@@ -217,7 +217,7 @@ export default function MkvToMp4Converter() {
                 </svg>
             ),
             title: "Multi-File Support",
-            description: "Upload and convert multiple MKV files at once — batch processing made easy.",
+            description: "Upload and convert multiple AVI files at once — batch processing made easy.",
         },
     ];
 
@@ -227,14 +227,6 @@ export default function MkvToMp4Converter() {
             <ToolsNavbar />
             <div className="bg-white min-h-screen flex flex-col items-start py-8 px-4">
                 <div className="max-w-7xl px-4 sm:px-6 lg:px-8 mx-auto w-full">
-                    {/* Main Header
-                    <HeroSection
-                        title="MKV to MP4"
-                        highlightText="Instantly"
-                        description="Convert MKV files to MP4 for smoother playback and sharing. Fast, free, and high-quality conversion with no watermarks."
-                        imageSrc="https://cdn-site-assets.veed.io/cdn-cgi/image/width=1024,quality=75,format=auto/MKV_to_MP_4_bdd29d1ce7/MKV_to_MP_4_bdd29d1ce7.png"
-                    /> */}
-
                     {/* Main Content */}
                     <div className="w-full bg-white overflow-hidden my-8 rounded-lg " id='convert'>
                         {/* Upload Area */}
@@ -251,7 +243,7 @@ export default function MkvToMp4Converter() {
                                     <Upload size={64} className="text-white" />
                                 </div>
                                 <h3 className="text-3xl font-extrabold text-indigo-800">
-                                    Upload MKV Files
+                                    Upload AVI Files
                                 </h3>
                                 <p className="text-indigo-600 text-lg">Drag & drop or click to select</p>
 
@@ -263,7 +255,7 @@ export default function MkvToMp4Converter() {
                                     Browse Files
                                     <input
                                         type="file"
-                                        accept=".mkv,video/x-matroska"
+                                        accept=".avi,video/x-msvideo"
                                         onChange={handleFileSelect}
                                         ref={fileInputRef}
                                         multiple
@@ -366,8 +358,9 @@ export default function MkvToMp4Converter() {
                             </div>
                         )}
                     </div>
-                     {convertedFile && (
-                        <div className='py-8'>
+                   
+                    {convertedFile && (
+                        <div className='py-2'>
                             <div className="border-t border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-b-lg">
                                 <div className="flex items-start">
                                     <div className="w-12 h-12 rounded-full bg-gradient-to-r from-green-400 to-teal-500 flex items-center justify-center mr-4 my-auto">
@@ -380,7 +373,7 @@ export default function MkvToMp4Converter() {
                                         </h3>
 
                                         <p className="text-indigo-600 mb-4">
-                                            Your MKV files have been successfully converted to MP4 format.
+                                            Your AVI files have been successfully converted to MP4 format.
                                         </p>
 
                                         <button
@@ -406,12 +399,11 @@ export default function MkvToMp4Converter() {
                             </div>
                         </div>
                     )}
-                    <FeaturesSection
+                     <FeaturesSection
                         title="Features"
                         description="Experience lightning-fast conversion with cutting-edge features and an intuitive interface."
                         features={featuresData}
                     />
-                   
                 </div>
             </div>
             <Footer />

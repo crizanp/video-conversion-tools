@@ -31,13 +31,14 @@ export default function AviToMp4Page() {
   return (
     <div>
       <ConversionNavbar />
-      <FileConverterHero
-        title="AVI to MP4"
-        description="Convert AVI files to MP4 for smoother playback and sharing. Fast, free, and high-quality conversion with no watermarks."
-        buttonText="Convert Now"
-        image="https://cdn-site-assets.veed.io/cdn-cgi/image/width=1024,quality=75,format=auto/AVI_to_MP4_b4c5dcae89/AVI_to_MP4_b4c5dcae89.png"
-        imageAlt="AVI to MP4 converter illustration"
-      />
+     <FileConverterHero
+             title="AVI to MP4"
+             description="Transform your AVI files to MP4 format with our lightning-fast converter. No quality loss, no watermarks."
+             buttonText="Convert Now"
+             link="/tools/avi-mp4"
+             image="https://cdn-site-assets.veed.io/cdn-cgi/image/width=1024,quality=75,format=auto/MKV_to_MP_4_bdd29d1ce7/MKV_to_MP_4_bdd29d1ce7.png"
+             imageAlt="AVI to MP4 converter illustration"
+           />
 
       <CompanySection 
         title="Trusted by video professionals"
