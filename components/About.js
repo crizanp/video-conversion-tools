@@ -1,7 +1,10 @@
 import React from 'react';
 import { ChevronRight, Globe, Shield, Zap, Award } from 'lucide-react';
+import { useData } from '../contexts/DataContext'; // Adjust path as needed
 
 export default function AboutSection() {
+  const { heroData, loading, error } = useData();
+
   const features = [
     {
       id: 1,
@@ -29,8 +32,34 @@ export default function AboutSection() {
     }
   ];
 
+  // Fallback data in case API fails
+  const fallbackAbout = {
+    title: "About FoxBeep Tools",
+    description: "FoxBeep Tools is a powerful video format conversion platform designed to simplify your media workflow. We serve content creators, video editors, marketers, teachers, and anyone needing quick and reliable video conversions."
+  };
+
+  // Get about data from API or use fallback
+  const aboutData = heroData?.about || fallbackAbout;
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="relative overflow-hidden bg-black" id="about">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
+          <div className="text-left mb-16 mx-auto">
+            <div className="animate-pulse">
+              <div className="h-16 bg-gray-700 rounded-lg mb-4"></div>
+              <div className="h-6 bg-gray-700 rounded-lg mb-2"></div>
+              <div className="h-6 bg-gray-700 rounded-lg w-3/4"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="relative overflow-hidden bg-black"id='about'>
+    <div className="relative overflow-hidden bg-black" id="about">
       {/* Decorative background elements */}
       <div className="absolute inset-0">
         <div className="absolute inset-y-0 left-1/2 w-full bg-gradient-to-l from-blue-800 to-transparent"></div>
@@ -43,22 +72,40 @@ export default function AboutSection() {
       </div>
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
-        {/* Section Header */}
-        <div className="text-left mb-16  mx-auto">
+        {/* Section Header - Now Dynamic */}
+        <div className="text-left mb-16 mx-auto">
           <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight">
-            <span className="block text-white">About </span>
-            <span className="block mt-1">
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-cyan-200 to-blue-100">
-                FoxBeep Tools
-              </span>
-            </span>
+            {(() => {
+              const words = aboutData.title.trim().split(' ');
+              const mainText = words.slice(0, -2).join(' ');
+              const lastTwoWords = words.slice(-2).join(' ');
+
+              return (
+                <>
+                  <span className="block text-white">{mainText}</span>
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-cyan-200 to-blue-100">
+                    {lastTwoWords}
+                  </span>
+                </>
+              );
+            })()}
+
           </h1>
           <p className="text-xl md:text-2xl text-blue-100 font-light mt-6 py-4">
-            FoxBeep Tools is a powerful video format conversion platform designed to simplify your media workflow. We serve content creators, video editors, marketers, teachers, and anyone needing quick and reliable video conversions.
+            {aboutData.description}
           </p>
+
+          {/* Show error message if API failed but we have fallback data */}
+          {error && (
+            <div className="mt-4 p-4 bg-yellow-900 bg-opacity-20 border border-yellow-500 border-opacity-30 rounded-lg">
+              <p className="text-yellow-200 text-sm">
+                Using cached content. Some information may not be up to date.
+              </p>
+            </div>
+          )}
         </div>
 
-        {/* Features Grid */}
+        {/* Features Grid - Keep static for now */}
         <div className="grid md:grid-cols-2 gap-8 mt-16">
           {features.map((feature) => (
             <div key={feature.id} className="bg-gray-200 bg-opacity-5 backdrop-blur-sm rounded-xl p-8 border border-white border-opacity-10 hover:bg-opacity-10 transition-all duration-300">
@@ -68,7 +115,7 @@ export default function AboutSection() {
                 </div>
                 <h3 className="text-xl font-semibold text-black">{feature.title}</h3>
               </div>
-              <p className="text-gray-500 leading-relaxed">
+              <p className="text-gray-800 leading-relaxed">
                 {feature.description}
               </p>
             </div>
