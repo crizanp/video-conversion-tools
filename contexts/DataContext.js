@@ -49,7 +49,7 @@ export const DataProvider = ({ children }) => {
     setError(null);
 
     try {
-      const response = await fetch('http://setting-panel.vercel.app/api/admin/homepage/settings');
+      const response = await fetch('https://setting-panel.vercel.app/api/admin/homepage/settings');
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -92,7 +92,7 @@ export const DataProvider = ({ children }) => {
     }
 
     try {
-      const response = await fetch('http://setting-panel.vercel.app/api/admin/company/details');
+      const response = await fetch('https://setting-panel.vercel.app/api/admin/company/details');
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -145,7 +145,7 @@ export const DataProvider = ({ children }) => {
     converterFetchingRef.current[converterId] = true;
 
     try {
-      const response = await fetch(`http://setting-panel.vercel.app/api/converter/settings?converterId=${converterId}`);
+      const response = await fetch(`https://setting-panel.vercel.app/api/converter/settings?converterId=${converterId}`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
