@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import CompanySection from '@/components/convert/companyIndustry';
 import FileConverterHero from '@/components/convert/hero';
 import FileFormatsExplanation from '@/components/convert/FileFormatsExplanation';
@@ -7,9 +7,60 @@ import ConversionNavbar from '@/components/convert/ConversionNavbar';
 import FAQ from '@/components/convert/faqSection';
 import { HelpCircle } from 'lucide-react';
 import Footer from '@/components/Footer';
+import { useData } from '@/contexts/DataContext'; 
+import AnimatedLoader from '@/components/AnimatedLoading';
 
 export default function WebmToMp4Page() {
-  // FAQ data that will be passed as props
+  const { 
+    getConverterData, 
+    fetchConverterData, 
+    isConverterCacheValid, 
+    loading: globalLoading 
+  } = useData();
+  
+  const [heroData, setHeroData] = useState(null);
+  const [waysData, setWaysData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
+  const converterId = 'webm-to-mp4';
+
+  // Default fallback hero data
+  const defaultHeroData = {
+    title: "WEBM to MP4 Converter",
+    description: "Convert your WEBM files to MP4 format with our lightning-fast converter. No quality loss, no watermarks.",
+    image: "https://cdn-site-assets.veed.io/cdn-cgi/image/width=1024,quality=75,format=auto/MKV_to_MP_4_bdd29d1ce7/MKV_to_MP_4_bdd29d1ce7.png",
+    imageAlt: "WEBM to MP4 converter illustration"
+  };
+
+  // Default fallback ways data
+  const defaultWaysData = {
+    title: "How to convert WEBM to MP4:",
+    description: "Follow these simple steps to convert your WEBM files",
+    image: "https://cdn-site-assets.veed.io/cdn-cgi/image/width=768,quality=75,format=auto/How_to_Convert_GIF_to_MP_4_7dc8870b16/How_to_Convert_GIF_to_MP_4_7dc8870b16.png",
+    imageAlt: "WEBM to MP4 conversion interface"
+  };
+
+  // Static steps data
+  const steps = [
+    {
+      number: 1,
+      heading: "Upload your file",
+      description: "Upload your WEBM video file. Our converter supports WEBM and all other popular video and audio file formats."
+    },
+    {
+      number: 2,
+      heading: "Select your output",
+      description: "Select MP4 as your desired output format from the dropdown. You can also choose other supported audio and video formats."
+    },
+    {
+      number: 3,
+      heading: "Convert & download",
+      description: "Click 'Convert' and export your file! Or use our audio and video editor to edit your tracks. You can cut, split, and rearrange your files quickly and save it in your desired file format."
+    }
+  ];
+
+  // Static FAQ data
   const faqData = [
     {
       question: "How do I convert WEBM to MP4?",
@@ -29,16 +80,80 @@ export default function WebmToMp4Page() {
     }
   ];
 
+  // Fetch hero and ways data dynamically
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        
+        // Check if we have cached data first
+        let data = getConverterData(converterId);
+        
+        // If no cached data or cache is invalid, fetch fresh data
+        if (!data || !isConverterCacheValid(converterId)) {
+          try {
+            data = await fetchConverterData(converterId);
+          } catch (fetchError) {
+            console.warn('API fetch failed, using fallback data:', fetchError);
+            data = null;
+          }
+        }
+        
+        // Set hero data - either from API or fallback
+        if (data && typeof data === 'object' && data.hero) {
+          setHeroData(data.hero);
+        } else {
+          console.log('Using fallback hero data due to invalid or missing API data');
+          setHeroData(defaultHeroData);
+        }
+
+        // Set ways data - either from API or fallback
+        if (data && typeof data === 'object' && data.ways) {
+          setWaysData(data.ways);
+        } else {
+          console.log('Using fallback ways data due to invalid or missing API data');
+          setWaysData(defaultWaysData);
+        }
+        
+      } catch (err) {
+        console.error('Error loading data:', err);
+        setError(err.message);
+        
+        // Always provide fallback data even on error
+        setHeroData(defaultHeroData);
+        setWaysData(defaultWaysData);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    // Only load if global loading is complete
+    if (!globalLoading) {
+      loadData();
+    }
+  }, [converterId, getConverterData, fetchConverterData, isConverterCacheValid, globalLoading]);
+
+  // Show loading state
+  if (globalLoading || isLoading) {
+    return <AnimatedLoader />;
+  }
+
+  // At this point, both heroData and waysData should always exist (either from API or fallback)
+  const currentHeroData = heroData || defaultHeroData;
+  const currentWaysData = waysData || defaultWaysData;
+
   return (
     <div>
-      <ConversionNavbar/>
+      <ConversionNavbar convertLink="/tools/webm-mp4" />
+      
       <FileConverterHero
-        title="WEBM to MP4"
-        description="Convert your WEBM files to MP4 format with our lightning-fast converter. No quality loss, no watermarks."
+        title={currentHeroData.title}
+        description={currentHeroData.description}
         buttonText="Convert Now"
         link="/tools/webm-mp4"
-              image="https://cdn-site-assets.veed.io/cdn-cgi/image/width=1024,quality=75,format=auto/MKV_to_MP_4_bdd29d1ce7/MKV_to_MP_4_bdd29d1ce7.png"
-        imageAlt="WEBM to MP4 converter illustration"
+        image={currentHeroData.image}
+        imageAlt={currentHeroData.imageAlt}
       />
       
       <CompanySection 
@@ -75,36 +190,20 @@ export default function WebmToMp4Page() {
       />
       
       <ConversionSteps
-        title="How to convert WEBM to MP4:"
-        steps={[
-          {
-            number: 1,
-            heading: "Upload your file",
-            description: "Upload your WEBM video file. Our converter supports WEBM and all other popular video and audio file formats."
-          },
-          {
-            number: 2,
-            heading: "Select your output",
-            description: "Select MP4 as your desired output format from the dropdown. You can also choose other supported audio and video formats."
-          },
-          {
-            number: 3,
-            heading: "Convert & download",
-            description: "Click 'Convert' and export your file! Or use our audio and video editor to edit your tracks. You can cut, split, and rearrange your files quickly and save it in your desired file format."
-          }
-        ]}
-        image="https://cdn-site-assets.veed.io/cdn-cgi/image/width=768,quality=75,format=auto/How_to_Convert_GIF_to_MP_4_7dc8870b16/How_to_Convert_GIF_to_MP_4_7dc8870b16.png"
-        imageAlt="WEBM to MP4 conversion interface"
+        title={currentWaysData.title}
+        steps={steps}
+        image={currentWaysData.image}
+        imageAlt={currentWaysData.imageAlt}
         backgroundColor="bg-white"
       />
       
-      {/* Add the FAQ section with props */}
       <FAQ 
         title="FAQ" 
         faqs={faqData}
         icon={<HelpCircle className="h-6 w-6 text-blue-500" />}
       />
-      <Footer/>
+      
+      <Footer />
     </div>
   );
 }

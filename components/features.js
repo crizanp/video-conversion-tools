@@ -1,5 +1,6 @@
 import React from 'react';
 import { Film, FileVideo, Video, ArrowRight, ExternalLink, Play } from 'lucide-react';
+import Link from 'next/link';
 
 export default function VideoConversionServices() {
     // Video conversion service data
@@ -102,7 +103,7 @@ export default function VideoConversionServices() {
                 {/* Services Grid */}
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {conversionServices.map((service) => (
-                        <a
+                        <Link
                             href={`/convert/${service.id}`}
                             key={service.id}
                             className="block relative bg-opacity-5 backdrop-blur-sm rounded-2xl overflow-hidden border border-white border-opacity-10 shadow-xl transition-all duration-300 hover:shadow-2xl hover:scale-105 hover:bg-opacity-10 hover:border-opacity-20 group"
@@ -161,7 +162,7 @@ export default function VideoConversionServices() {
                                     </span>
                                 </div>
                             </div>
-                        </a>
+                        </Link>
                     ))}
                 </div>
 

@@ -1,4 +1,4 @@
-// contexts/DataContext.js
+import AnimatedLoader from '@/components/AnimatedLoading';
 import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 
 const DataContext = createContext();
@@ -13,41 +13,47 @@ export const useData = () => {
 
 export const DataProvider = ({ children }) => {
   const [heroData, setHeroData] = useState(null);
+  const [companyData, setCompanyData] = useState(null);
+  const [converterData, setConverterData] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
-  // Use useRef to store cache timestamp to avoid dependency issues
+ 
   const lastFetchRef = useRef(0);
   const fetchingRef = useRef(false);
-  
+  const converterFetchingRef = useRef({});
+ 
   const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+  // Available converter IDs
+  const CONVERTER_IDS = [
+    'mp4-to-mkv',
+    'mkv-to-mp4',
+    'avi-to-mp4',
+    'webm-to-mp4',
+    'mov-to-mp4',
+    'mp4-to-webm'
+  ];
 
   const fetchHeroData = useCallback(async (forceRefresh = false) => {
     const now = Date.now();
-    
-    // Prevent multiple simultaneous requests
+   
     if (fetchingRef.current && !forceRefresh) {
       return;
     }
-    
-    // Check if we have cached data that's still valid and not forcing refresh
+   
     if (!forceRefresh && heroData && (now - lastFetchRef.current) < CACHE_DURATION) {
       return;
     }
 
     fetchingRef.current = true;
-    setLoading(true);
     setError(null);
 
     try {
-      const response = await fetch('http://localhost:3000/api/admin/homepage/settings');
-
+      const response = await fetch('http://setting-panel.vercel.app/api/admin/homepage/settings');
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
       const result = await response.json();
-
       if (result.success && result.data) {
         setHeroData(result.data);
         lastFetchRef.current = now;
@@ -57,7 +63,7 @@ export const DataProvider = ({ children }) => {
     } catch (err) {
       console.error('Error fetching hero data:', err);
       setError(err.message);
-      
+     
       // Use fallback data if API fails and we don't have existing data
       if (!heroData) {
         const fallbackData = {
@@ -73,32 +79,212 @@ export const DataProvider = ({ children }) => {
         lastFetchRef.current = now;
       }
     } finally {
-      setLoading(false);
       fetchingRef.current = false;
     }
-  }, [heroData]); // Only depend on heroData
+  }, [heroData]);
+
+  const fetchCompanyData = useCallback(async (forceRefresh = false) => {
+    const now = Date.now();
+   
+    // Check if we have cached data that's still valid and not forcing refresh
+    if (!forceRefresh && companyData && (now - lastFetchRef.current) < CACHE_DURATION) {
+      return;
+    }
+
+    try {
+      const response = await fetch('http://setting-panel.vercel.app/api/admin/company/details');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const result = await response.json();
+      if (result.success && result.data) {
+        setCompanyData(result.data);
+      } else {
+        throw new Error('Invalid company API response format');
+      }
+    } catch (err) {
+      console.error('Error fetching company data:', err);
+     
+      // Use fallback data if API fails and we don't have existing data
+      if (!companyData) {
+        const fallbackData = {
+          companyName: "Foxbeep",
+          socialLinks: {
+            facebook: "https://facebook.com/foxbeeptech",
+            instagram: "https://instagram.com/foxbeeptech", 
+            twitter: "https://x.com/foxbeeptech",
+            linkedin: "https://linkedin.com/in/foxbeeptech"
+          }
+        };
+        setCompanyData(fallbackData);
+      }
+    }
+  }, [companyData]);
+
+  const fetchConverterData = useCallback(async (converterId, forceRefresh = false) => {
+    const now = Date.now();
+    
+    // Validate converter ID
+    if (!CONVERTER_IDS.includes(converterId)) {
+      console.error(`Invalid converter ID: ${converterId}`);
+      return null;
+    }
+   
+    // Check if we're already fetching this converter
+    if (converterFetchingRef.current[converterId] && !forceRefresh) {
+      return converterData[converterId] || null;
+    }
+   
+    // Check if we have cached data that's still valid
+    if (!forceRefresh && converterData[converterId] && 
+        converterData[converterId]._fetchedAt && 
+        (now - converterData[converterId]._fetchedAt) < CACHE_DURATION) {
+      return converterData[converterId];
+    }
+
+    converterFetchingRef.current[converterId] = true;
+
+    try {
+      const response = await fetch(`http://setting-panel.vercel.app/api/converter/settings?converterId=${converterId}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const result = await response.json();
+      
+      if (result.success && result.data) {
+        const dataWithTimestamp = {
+          ...result.data,
+          _fetchedAt: now
+        };
+        
+        setConverterData(prev => ({
+          ...prev,
+          [converterId]: dataWithTimestamp
+        }));
+        
+        return dataWithTimestamp;
+      } else {
+        throw new Error('Invalid converter API response format');
+      }
+    } catch (err) {
+      console.error(`Error fetching converter data for ${converterId}:`, err);
+     
+      // Use fallback data if API fails and we don't have existing data
+      if (!converterData[converterId]) {
+        const fallbackData = {
+          hero: {
+            title: `${converterId.replace('-', ' ').toUpperCase()} Converter`,
+            description: `Convert your ${converterId.split('-')[0].toUpperCase()} files to ${converterId.split('-')[2].toUpperCase()} format with our lightning-fast converter.`,
+            image: "https://cdn-site-assets.veed.io/cdn-cgi/image/width=1024,quality=75,format=auto/MKV_to_MP_4_bdd29d1ce7/MKV_to_MP_4_bdd29d1ce7.png",
+            imageAlt: `${converterId} converter`,
+            imagePublicId: null
+          },
+          ways: {
+            title: "How to Convert",
+            description: `Follow these simple steps to convert your ${converterId.split('-')[0].toUpperCase()} files`,
+            image: "https://cdn-site-assets.veed.io/cdn-cgi/image/width=1024,quality=75,format=auto/MKV_to_MP_4_bdd29d1ce7/MKV_to_MP_4_bdd29d1ce7.png",
+            imageAlt: "Conversion process",
+            imagePublicId: null,
+            steps: [
+              "Upload your file",
+              "Choose conversion settings",
+              `Download your ${converterId.split('-')[2].toUpperCase()} file`
+            ]
+          },
+          features: {
+            title: "Why Choose Our Converter",
+            items: [
+              "Fast conversion speed",
+              "High quality output",
+              "Secure file processing",
+              "No registration required"
+            ]
+          },
+          _fetchedAt: now
+        };
+        
+        setConverterData(prev => ({
+          ...prev,
+          [converterId]: fallbackData
+        }));
+        
+        return fallbackData;
+      }
+      
+      return converterData[converterId] || null;
+    } finally {
+      converterFetchingRef.current[converterId] = false;
+    }
+  }, [converterData]);
+
+  // Fetch all converter data
+  const fetchAllConverterData = useCallback(async (forceRefresh = false) => {
+    const promises = CONVERTER_IDS.map(id => fetchConverterData(id, forceRefresh));
+    await Promise.all(promises);
+  }, [fetchConverterData]);
 
   // Initial fetch - only runs once on mount
   useEffect(() => {
-    fetchHeroData();
-  }, []); // Empty dependency array ensures this only runs once
+    const fetchAllData = async () => {
+      await Promise.all([
+        fetchHeroData(),
+        fetchCompanyData(),
+        fetchAllConverterData()
+      ]);
+      setLoading(false); // Only set loading to false after all data is fetched
+    };
+    
+    fetchAllData();
+  }, [fetchHeroData, fetchCompanyData, fetchAllConverterData]);
 
-  const refetch = useCallback(() => {
-    return fetchHeroData(true);
-  }, [fetchHeroData]);
+  const refetch = useCallback(async () => {
+    setLoading(true);
+    await Promise.all([
+      fetchHeroData(true),
+      fetchCompanyData(true),
+      fetchAllConverterData(true)
+    ]);
+    setLoading(false);
+  }, [fetchHeroData, fetchCompanyData, fetchAllConverterData]);
+
+  const refetchConverter = useCallback(async (converterId) => {
+    return await fetchConverterData(converterId, true);
+  }, [fetchConverterData]);
+
+  const getConverterData = useCallback((converterId) => {
+    return converterData[converterId] || null;
+  }, [converterData]);
 
   const isCacheValid = useCallback(() => {
     const now = Date.now();
-    return heroData && (now - lastFetchRef.current) < CACHE_DURATION;
-  }, [heroData]);
+    return heroData && companyData && (now - lastFetchRef.current) < CACHE_DURATION;
+  }, [heroData, companyData]);
+
+  const isConverterCacheValid = useCallback((converterId) => {
+    const now = Date.now();
+    const data = converterData[converterId];
+    return data && data._fetchedAt && (now - data._fetchedAt) < CACHE_DURATION;
+  }, [converterData]);
 
   const value = {
     heroData,
+    companyData,
+    converterData,
     loading,
     error,
     refetch,
-    isCacheValid
+    refetchConverter,
+    fetchConverterData,
+    getConverterData,
+    isCacheValid,
+    isConverterCacheValid,
+    CONVERTER_IDS
   };
+
+  // Show simple loader while loading
+  if (loading) {
+    return <AnimatedLoader />;
+  }
 
   return (
     <DataContext.Provider value={value}>

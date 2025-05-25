@@ -2,22 +2,13 @@
 import React from 'react';
 import { ArrowRight, Play, CheckCircle, Wifi, WifiOff } from 'lucide-react';
 import { useData } from '../contexts/DataContext';
+import Link from 'next/link';
 
 export default function HeroSection() {
   const { heroData, loading, error, refetch, isOnline } = useData();
 
   // Show loading state only when we don't have any data
-  if (loading && !heroData) {
-    return (
-      <div className="relative overflow-hidden bg-black">
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
-          <div className="flex items-center justify-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400"></div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+
 
   // Show error state only when we don't have any data to display
   if (error && !heroData) {
@@ -42,7 +33,7 @@ export default function HeroSection() {
 
   return (
     <div className="relative overflow-hidden bg-black">
-     
+
 
       {/* Decorative background elements */}
       <div className="absolute inset-0">
@@ -97,10 +88,13 @@ export default function HeroSection() {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 mt-2">
-              <button className="px-8 py-4 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg text-white font-medium shadow-lg shadow-blue-500/30 hover:shadow-blue-500/40 hover:translate-y-[-2px] transition-all flex items-center justify-center">
-                Get Started Now
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </button>
+              <Link href="#services" className=''>
+                <button className="cursor-pointer px-8 py-4 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg text-white font-medium shadow-lg shadow-blue-500/30 hover:shadow-blue-500/40 hover:translate-y-[-2px] transition-all flex items-center justify-center">
+                  Get Started Now
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </button>
+              </Link>
+
               <button className="px-8 py-4 bg-white bg-opacity-10 backdrop-blur-sm rounded-lg border border-white border-opacity-20 hover:bg-opacity-20 transition-all flex items-center justify-center text-black">
                 <Play className="mr-2 h-5 w-5" />
                 Watch Demo

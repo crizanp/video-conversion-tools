@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Video, Menu, X, ChevronDown, ChevronUp } from 'lucide-react';
 import Link from 'next/link';
+import { useData } from '../../contexts/DataContext'; // Adjust path as needed
 
 export default function ToolsNavbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -8,13 +9,18 @@ export default function ToolsNavbar() {
   const [servicesOpen, setServicesOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('');
 
+  // Get company data from context
+  const { companyData, loading } = useData();
+
   const conversionServices = [
-    "MP4 to MKV",
-    "MP4 to MOV",
-    "MP4 to AVI",
-    "MP4 to WMV",
-    "MP4 to WebM"
-  ];
+  { name: "MP4 to MKV", slug: "mp4-to-mkv" },
+  { name: "MKV to MP4", slug: "mkv-to-mp4" },
+  { name: "AVI to MP4", slug: "avi-to-mp4" },
+  { name: "WEBM to MP4", slug: "webm-to-mp4" },
+  { name: "MP4 to WEBM", slug: "mp4-to-webm" },
+  { name: "MOV to MP4", slug: "mov-to-mp4" }
+];
+
 
   useEffect(() => {
     const handleScroll = () => {
@@ -55,24 +61,20 @@ export default function ToolsNavbar() {
     };
   }, [servicesOpen]);
 
-  const scrollToSection = (sectionId) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      const offsetTop = element.getBoundingClientRect().top + window.pageYOffset;
-      window.scrollTo({
-        top: offsetTop - 40, // Offset for navbar height
-        behavior: 'smooth'
-      });
-      setActiveSection(sectionId);
-      setIsOpen(false);
-    }
-  };
-
-  const handleServiceSelect = (service) => {
-    // You can add logic here to handle service selection
-    console.log(`Selected service: ${service}`);
+  // Close mobile menu and services dropdown
+  const closeMobileMenu = () => {
+    setIsOpen(false);
     setServicesOpen(false);
   };
+
+  const closeServicesDropdown = () => {
+    setServicesOpen(false);
+  };
+
+  // Get dynamic logos with fallback
+  const blackLogoUrl = companyData?.blackLogo;
+  const regularLogoUrl = companyData?.logo;
+  const companyName = companyData?.companyName || 'Foxbeep';
 
   return (
     <nav className={`sticky top-0 z-50 transition-all duration-300 ${
@@ -81,16 +83,50 @@ export default function ToolsNavbar() {
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           {/* Logo and brand */}
-          <Link href="/" passHref className="my-auto">
+          <Link href="/" className="my-auto">
             <div className="flex items-center">
               <div className="flex-shrink-0 flex items-center cursor-pointer">
-                <Video className={`h-8 w-8 ${scrolled ? 'text-blue-400' : 'text-blue-600'}`} />
+                {/* Dynamic Logo - Black logo when not scrolled, regular logo when scrolled */}
+                {!scrolled && blackLogoUrl && !loading ? (
+                  <img
+                    src={blackLogoUrl}
+                    alt="Logo"
+                    className="h-12 w-auto object-contain"
+                    onError={(e) => {
+                      // Fallback to icon if image fails to load
+                      e.target.style.display = 'none';
+                      e.target.nextSibling.style.display = 'block';
+                    }}
+                  />
+                ) : scrolled && regularLogoUrl && !loading ? (
+                  <img
+                    src={regularLogoUrl}
+                    alt="Logo"
+                    className="h-18 w-auto -ml-8 object-contain"
+                    onError={(e) => {
+                      // Fallback to icon if image fails to load
+                      e.target.style.display = 'none';
+                      e.target.nextSibling.style.display = 'block';
+                    }}
+                  />
+                ) : null}
+
+                {/* Fallback Icon - shown when no logo or loading */}
+                <Video 
+                  className={`h-8 w-8 ${scrolled ? 'text-blue-400' : 'text-blue-600'} ${
+                    (!scrolled && blackLogoUrl && !loading) || (scrolled && regularLogoUrl && !loading) ? 'hidden' : 'block'
+                  }`} 
+                />
+
+                {/* Company Name - shown when using fallback icon or alongside logo */}
                 <span className={`ml-2 text-xl font-bold ${
                   scrolled 
                     ? 'text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-cyan-200' 
                     : 'text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500'
+                } ${
+                  (!scrolled && blackLogoUrl && !loading) || (scrolled && regularLogoUrl && !loading) ? 'hidden' : 'block'
                 }`}>
-                  Foxbeep
+                  {companyName}
                 </span>
               </div>
             </div>
@@ -121,42 +157,43 @@ export default function ToolsNavbar() {
                   scrolled ? 'bg-gray-900 ring-1 ring-black ring-opacity-5' : 'bg-white ring-1 ring-black ring-opacity-5'
                 }`}>
                   {conversionServices.map((service, index) => (
-                    <div
+                    <Link
                       key={index}
-                      onClick={() => handleServiceSelect(service)}
+                      href={`/convert/${service.slug}`}
+                      onClick={closeServicesDropdown}
                       className={`block px-4 py-2 text-sm ${
                         scrolled 
                           ? 'text-blue-100 hover:bg-gray-800' 
                           : 'text-blue-700 hover:bg-gray-100'
-                      } cursor-pointer`}
+                      } transition-colors`}
                     >
-                      {service}
-                    </div>
+                      {service.name}
+                    </Link>
                   ))}
                 </div>
               )}
             </div>
             
-            <div 
-              onClick={() => scrollToSection('features')} 
+            <Link 
+              href="#features"
               className={`${
                 activeSection === 'features' 
                   ? (scrolled ? 'text-blue-300 border-blue-500' : 'text-blue-600 border-blue-600') 
                   : (scrolled 
                       ? 'border-transparent text-blue-100 hover:text-blue-300 hover:border-blue-400' 
                       : 'border-transparent text-blue-800 hover:text-blue-600 hover:border-blue-500')
-              } inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium cursor-pointer transition-colors`}
+              } inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors`}
             >
               Features
-            </div>
+            </Link>
             
-            <div
-              onClick={() => scrollToSection('convert')}
+            <Link
+              href="#convert"
               className={`${scrolled ? 'bg-blue-500 hover:bg-blue-600 text-white' : 'bg-blue-600 hover:bg-blue-700 text-white'} 
-                px-4 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer`}
+                px-4 py-2 rounded-md text-sm font-medium transition-colors`}
             >
               Convert Now
-            </div>
+            </Link>
           </div>
           
           {/* Mobile menu button */}
@@ -210,45 +247,48 @@ export default function ToolsNavbar() {
                 scrolled ? 'bg-blue-900 bg-opacity-20' : 'bg-blue-50'
               }`}>
                 {conversionServices.map((service, index) => (
-                  <div
+                  <Link
                     key={index}
-                    onClick={() => handleServiceSelect(service)}
+                    href={`/convert/${service.slug}`}
+                    onClick={closeMobileMenu}
                     className={`${
                       scrolled 
                         ? 'text-blue-200 hover:text-blue-300' 
                         : 'text-blue-700 hover:text-blue-800'
-                    } block px-3 py-2 rounded-md text-sm w-full text-left cursor-pointer`}
+                    } block px-3 py-2 rounded-md text-sm w-full text-left transition-colors`}
                   >
-                    {service}
-                  </div>
+                    {service.name}
+                  </Link>
                 ))}
               </div>
             )}
           </div>
           
-          <div
-            onClick={() => scrollToSection('features')}
+          <Link
+            href="#features"
+            onClick={closeMobileMenu}
             className={`${
               activeSection === 'features' 
                 ? (scrolled ? 'text-blue-300 bg-blue-900 bg-opacity-20' : 'text-blue-600 bg-blue-50') 
                 : (scrolled 
                     ? 'text-blue-100 hover:bg-blue-900 hover:bg-opacity-20 hover:text-blue-300' 
                     : 'text-blue-800 hover:bg-blue-50 hover:text-blue-600')
-            } block px-3 py-2 rounded-md text-base font-medium w-full text-left cursor-pointer`}
+            } block px-3 py-2 rounded-md text-base font-medium w-full text-left`}
           >
             Features
-          </div>
+          </Link>
           
-          <div
-            onClick={() => scrollToSection('convert')}
+          <Link
+            href="#convert"
+            onClick={closeMobileMenu}
             className={`${
               scrolled 
                 ? 'bg-blue-500 hover:bg-blue-600 text-white' 
                 : 'bg-blue-600 hover:bg-blue-700 text-white'
-            } block px-3 py-2 rounded-md text-base font-medium w-full text-center mt-2 cursor-pointer`}
+            } block px-3 py-2 rounded-md text-base font-medium w-full text-center mt-2`}
           >
             Convert Now
-          </div>
+          </Link>
         </div>
       </div>
     </nav>

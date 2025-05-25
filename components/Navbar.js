@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Video, Menu, X } from 'lucide-react';
+import { useData } from '../contexts/DataContext'; // Adjust path as needed
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
+
+  // Get company data from context
+  const { companyData, loading } = useData();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -15,7 +19,7 @@ export default function Navbar() {
       } else {
         setScrolled(false);
       }
-      
+
       // Determine which section is in view
       const sections = ['home', 'features', 'services', 'pricing', 'about'];
       for (const section of sections) {
@@ -49,10 +53,12 @@ export default function Navbar() {
     }
   };
 
+  // Get dynamic logo with fallback
+  const logoUrl = companyData?.logo;
+
   return (
-    <nav className={`sticky top-0 z-50 transition-all duration-300 ${
-      scrolled ? 'bg-black bg-opacity-90 backdrop-blur-md shadow-lg' : 'bg-black relative overflow-hidden'
-    }`}>
+    <nav className={`sticky top-0 z-50 transition-all duration-300 ${scrolled ? 'bg-black bg-opacity-90 backdrop-blur-md shadow-lg' : 'bg-black relative overflow-hidden'
+      }`}>
       {/* Decorative background elements - only visible when not scrolled */}
       {!scrolled && (
         <div className="absolute inset-0 pointer-events-none">
@@ -65,53 +71,67 @@ export default function Navbar() {
           </div>
         </div>
       )}
-      
+
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
-          {/* Logo and brand */}
+          {/* Logo */}
           <div className="flex items-center">
             <div className="flex-shrink-0 flex items-center">
-              <Video className="h-8 w-8 text-blue-400" />
-              <span className="ml-2 text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-cyan-200">
-                Foxbeep
-              </span>
+              {/* Dynamic Logo */}
+              {logoUrl && !loading ? (
+                <img
+                  src={logoUrl}
+                  alt="Logo"
+                  className="h-18 w-auto -ml-9 object-contain"
+                  onError={(e) => {
+                    // Fallback to icon if image fails to load
+                    e.target.style.display = 'none';
+                    e.target.nextSibling.style.display = 'block';
+                  }}
+                />
+              ) : null}
+
+              {/* Fallback Icon - hidden when image loads successfully */}
+              <Video
+                className={`h-12 w-12 text-blue-400 ${logoUrl && !loading ? 'hidden' : 'block'}`}
+              />
             </div>
           </div>
-          
+
           {/* Desktop navigation - moved to right side */}
           <div className="hidden md:flex md:items-center md:space-x-8">
-            <button 
-              onClick={() => scrollToSection('home')} 
+            <button
+              onClick={() => scrollToSection('home')}
               className={`${activeSection === 'home' ? 'text-blue-300 border-blue-500' : 'border-transparent text-blue-100 hover:text-blue-300 hover:border-blue-400'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium cursor-pointer transition-colors`}
             >
               Home
             </button>
-            <button 
-              onClick={() => scrollToSection('features')} 
+            <button
+              onClick={() => scrollToSection('features')}
               className={`${activeSection === 'features' ? 'text-blue-300 border-blue-500' : 'border-transparent text-blue-100 hover:text-blue-300 hover:border-blue-400'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium cursor-pointer transition-colors`}
             >
               Features
             </button>
-            <button 
-              onClick={() => scrollToSection('services')} 
+            <button
+              onClick={() => scrollToSection('services')}
               className={`${activeSection === 'services' ? 'text-blue-300 border-blue-500' : 'border-transparent text-blue-100 hover:text-blue-300 hover:border-blue-400'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium cursor-pointer transition-colors`}
             >
               Services
             </button>
-            <button 
-              onClick={() => scrollToSection('pricing')} 
+            <button
+              onClick={() => scrollToSection('pricing')}
               className={`${activeSection === 'pricing' ? 'text-blue-300 border-blue-500' : 'border-transparent text-blue-100 hover:text-blue-300 hover:border-blue-400'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium cursor-pointer transition-colors`}
             >
               Pricing
             </button>
-            <button 
-              onClick={() => scrollToSection('about')} 
+            <button
+              onClick={() => scrollToSection('about')}
               className={`${activeSection === 'about' ? 'text-blue-300 border-blue-500' : 'border-transparent text-blue-100 hover:text-blue-300 hover:border-blue-400'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium cursor-pointer transition-colors`}
             >
               About
             </button>
           </div>
-          
+
           {/* Mobile menu button */}
           <div className="flex items-center md:hidden">
             <button
