@@ -5,7 +5,7 @@ import { Film, Upload, Check, X, Download, Play, Settings, AlertCircle, Monitor,
 import Footer from '@/components/Footer';
 import ToolsNavbar from '@/components/convert/toolsNavbar';
 import FeaturesSection from '@/components/tools/FeaturesSection';
-
+import AdModal from '@/components/AdsModal'; 
 export default function Mp4ToMkvConverter() {
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [isConverting, setIsConverting] = useState(false);
@@ -15,7 +15,8 @@ export default function Mp4ToMkvConverter() {
     const [videoQuality, setVideoQuality] = useState('high');
     const fileInputRef = useRef(null);
     const fileDropRef = useRef(null);
-
+const [showAdModal, setShowAdModal] = useState(false);
+const [pendingConversion, setPendingConversion] = useState(false);
     // Handle file selection
     const handleFileSelect = (event) => {
         const files = Array.from(event.target.files);
@@ -100,57 +101,77 @@ export default function Mp4ToMkvConverter() {
 
     // Perform the conversion
     const performConversion = async () => {
-        if (selectedFiles.length === 0) {
-            setStatus('Please select MP4 files to convert.');
-            return;
-        }
+    if (selectedFiles.length === 0) {
+        setStatus('Please select MP4 files to convert.');
+        return;
+    }
 
-        setIsConverting(true);
-        setStatus('Preparing to convert...');
-        setProgress(0);
-        setConvertedFile(null);
+    // Show advertisement modal first
+    setShowAdModal(true);
+    setPendingConversion(true);
+};
 
-        try {
-            const zip = new JSZip();
-            const totalFiles = selectedFiles.length;
+const handleActualConversion = async () => {
+    setIsConverting(true);
+    setStatus('Preparing to convert...');
+    setProgress(0);
+    setConvertedFile(null);
 
-            for (let i = 0; i < totalFiles; i++) {
-                const file = selectedFiles[i];
+    try {
+        const zip = new JSZip();
+        const totalFiles = selectedFiles.length;
 
-                try {
-                    const convertedFile = await convertVideo(file);
+        for (let i = 0; i < totalFiles; i++) {
+            const file = selectedFiles[i];
 
-                    // Add the "converted" file to the ZIP
-                    const fileName = file.name.replace(/\.mp4$/i, '.mkv');
-                    zip.file(fileName, convertedFile);
+            try {
+                const convertedFile = await convertVideo(file);
 
-                    // Update progress
-                    const currentProgress = Math.round(((i + 1) / totalFiles) * 100);
-                    setProgress(currentProgress);
-                    setStatus(`Converting file ${i + 1} of ${totalFiles} (${currentProgress}%)...`);
-                } catch (error) {
-                    console.error(`Error converting file ${file.name}:`, error);
-                }
+                // Add the "converted" file to the ZIP
+                const fileName = file.name.replace(/\.mp4$/i, '.mkv');
+                zip.file(fileName, convertedFile);
+
+                // Update progress
+                const currentProgress = Math.round(((i + 1) / totalFiles) * 100);
+                setProgress(currentProgress);
+                setStatus(`Converting file ${i + 1} of ${totalFiles} (${currentProgress}%)...`);
+            } catch (error) {
+                console.error(`Error converting file ${file.name}:`, error);
             }
-            // Generate the ZIP file
-            setStatus('Creating ZIP file...');
-            const zipBlob = await zip.generateAsync({ type: 'blob' });
-
-            // Store the blob for later download
-            setConvertedFile({
-                blob: zipBlob,
-                name: `converted_videos_${videoQuality}_mkv.zip`
-            });
-
-            setStatus('Conversion completed! Your file is ready for download.');
-        } catch (error) {
-            console.error('Error during conversion:', error);
-            setStatus(`Error during conversion: ${error.message}`);
-        } finally {
-            setIsConverting(false);
         }
-    };
+        // Generate the ZIP file
+        setStatus('Creating ZIP file...');
+        const zipBlob = await zip.generateAsync({ type: 'blob' });
 
+        // Store the blob for later download
+        setConvertedFile({
+            blob: zipBlob,
+            name: `converted_videos_${videoQuality}_mkv.zip`
+        });
+
+        setStatus('Conversion completed! Your file is ready for download.');
+    } catch (error) {
+        console.error('Error during conversion:', error);
+        setStatus(`Error during conversion: ${error.message}`);
+    } finally {
+        setIsConverting(false);
+        setPendingConversion(false);
+    }
+};
+
+// Handle ad completion
+const handleAdComplete = () => {
+    setShowAdModal(false);
+    if (pendingConversion) {
+        handleActualConversion();
+    }
+};
+
+// Handle ad modal close
+const handleAdClose = () => {
+    setShowAdModal(false);
+    setPendingConversion(false);
+};
     // Handle file download
     const handleDownload = () => {
         if (convertedFile) {
@@ -422,6 +443,11 @@ export default function Mp4ToMkvConverter() {
                 </div>
             </div>
             <Footer />
+            <AdModal 
+    isOpen={showAdModal}
+    onClose={handleAdClose}
+    onAdComplete={handleAdComplete}
+/>
         </>
     );
 }
