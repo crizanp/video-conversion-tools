@@ -5,7 +5,8 @@ import { Film, Upload, Check, X, Download, Play, Settings, AlertCircle, Monitor,
 import Footer from '@/components/Footer';
 import ToolsNavbar from '@/components/convert/toolsNavbar';
 import FeaturesSection from '@/components/tools/FeaturesSection';
-import AdModal from '@/components/AdsModal'; 
+import AdModal from '@/components/AdsModal';
+import { FooterAd, HeaderAd } from '@/components/ads/AdPlacements';
 export default function Mp4ToMkvConverter() {
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [isConverting, setIsConverting] = useState(false);
@@ -15,8 +16,8 @@ export default function Mp4ToMkvConverter() {
     const [videoQuality, setVideoQuality] = useState('high');
     const fileInputRef = useRef(null);
     const fileDropRef = useRef(null);
-const [showAdModal, setShowAdModal] = useState(false);
-const [pendingConversion, setPendingConversion] = useState(false);
+    const [showAdModal, setShowAdModal] = useState(false);
+    const [pendingConversion, setPendingConversion] = useState(false);
     // Handle file selection
     const handleFileSelect = (event) => {
         const files = Array.from(event.target.files);
@@ -101,77 +102,77 @@ const [pendingConversion, setPendingConversion] = useState(false);
 
     // Perform the conversion
     const performConversion = async () => {
-    if (selectedFiles.length === 0) {
-        setStatus('Please select MP4 files to convert.');
-        return;
-    }
-
-    // Show advertisement modal first
-    setShowAdModal(true);
-    setPendingConversion(true);
-};
-
-const handleActualConversion = async () => {
-    setIsConverting(true);
-    setStatus('Preparing to convert...');
-    setProgress(0);
-    setConvertedFile(null);
-
-    try {
-        const zip = new JSZip();
-        const totalFiles = selectedFiles.length;
-
-        for (let i = 0; i < totalFiles; i++) {
-            const file = selectedFiles[i];
-
-            try {
-                const convertedFile = await convertVideo(file);
-
-                // Add the "converted" file to the ZIP
-                const fileName = file.name.replace(/\.mp4$/i, '.mkv');
-                zip.file(fileName, convertedFile);
-
-                // Update progress
-                const currentProgress = Math.round(((i + 1) / totalFiles) * 100);
-                setProgress(currentProgress);
-                setStatus(`Converting file ${i + 1} of ${totalFiles} (${currentProgress}%)...`);
-            } catch (error) {
-                console.error(`Error converting file ${file.name}:`, error);
-            }
+        if (selectedFiles.length === 0) {
+            setStatus('Please select MP4 files to convert.');
+            return;
         }
-        // Generate the ZIP file
-        setStatus('Creating ZIP file...');
-        const zipBlob = await zip.generateAsync({ type: 'blob' });
 
-        // Store the blob for later download
-        setConvertedFile({
-            blob: zipBlob,
-            name: `converted_videos_${videoQuality}_mkv.zip`
-        });
+        // Show advertisement modal first
+        setShowAdModal(true);
+        setPendingConversion(true);
+    };
 
-        setStatus('Conversion completed! Your file is ready for download.');
-    } catch (error) {
-        console.error('Error during conversion:', error);
-        setStatus(`Error during conversion: ${error.message}`);
-    } finally {
-        setIsConverting(false);
+    const handleActualConversion = async () => {
+        setIsConverting(true);
+        setStatus('Preparing to convert...');
+        setProgress(0);
+        setConvertedFile(null);
+
+        try {
+            const zip = new JSZip();
+            const totalFiles = selectedFiles.length;
+
+            for (let i = 0; i < totalFiles; i++) {
+                const file = selectedFiles[i];
+
+                try {
+                    const convertedFile = await convertVideo(file);
+
+                    // Add the "converted" file to the ZIP
+                    const fileName = file.name.replace(/\.mp4$/i, '.mkv');
+                    zip.file(fileName, convertedFile);
+
+                    // Update progress
+                    const currentProgress = Math.round(((i + 1) / totalFiles) * 100);
+                    setProgress(currentProgress);
+                    setStatus(`Converting file ${i + 1} of ${totalFiles} (${currentProgress}%)...`);
+                } catch (error) {
+                    console.error(`Error converting file ${file.name}:`, error);
+                }
+            }
+            // Generate the ZIP file
+            setStatus('Creating ZIP file...');
+            const zipBlob = await zip.generateAsync({ type: 'blob' });
+
+            // Store the blob for later download
+            setConvertedFile({
+                blob: zipBlob,
+                name: `converted_videos_${videoQuality}_mkv.zip`
+            });
+
+            setStatus('Conversion completed! Your file is ready for download.');
+        } catch (error) {
+            console.error('Error during conversion:', error);
+            setStatus(`Error during conversion: ${error.message}`);
+        } finally {
+            setIsConverting(false);
+            setPendingConversion(false);
+        }
+    };
+
+    // Handle ad completion
+    const handleAdComplete = () => {
+        setShowAdModal(false);
+        if (pendingConversion) {
+            handleActualConversion();
+        }
+    };
+
+    // Handle ad modal close
+    const handleAdClose = () => {
+        setShowAdModal(false);
         setPendingConversion(false);
-    }
-};
-
-// Handle ad completion
-const handleAdComplete = () => {
-    setShowAdModal(false);
-    if (pendingConversion) {
-        handleActualConversion();
-    }
-};
-
-// Handle ad modal close
-const handleAdClose = () => {
-    setShowAdModal(false);
-    setPendingConversion(false);
-};
+    };
     // Handle file download
     const handleDownload = () => {
         if (convertedFile) {
@@ -249,6 +250,7 @@ const handleAdClose = () => {
     return (
         <>
             <ToolsNavbar />
+            <HeaderAd/>
             <div className="bg-white min-h-screen flex flex-col items-start py-8 px-4">
                 <div className="max-w-7xl px-4 sm:px-6 lg:px-8 mx-auto w-full">
                     {/* Main Content */}
@@ -442,12 +444,14 @@ const handleAdClose = () => {
 
                 </div>
             </div>
+            <FooterAd/>
             <Footer />
-            <AdModal 
-    isOpen={showAdModal}
-    onClose={handleAdClose}
-    onAdComplete={handleAdComplete}
-/>
+            
+            <AdModal
+                isOpen={showAdModal}
+                onClose={handleAdClose}
+                onAdComplete={handleAdComplete}
+            />
         </>
     );
 }
