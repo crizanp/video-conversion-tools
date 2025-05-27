@@ -1,62 +1,60 @@
 import React, { useState, useEffect } from 'react';
 import { X, Play } from 'lucide-react';
+import { useData } from '../contexts/DataContext'; // Adjust import path as needed
 
 const AdModal = ({ isOpen, onClose, onAdComplete }) => {
+    const { adsData, fetchAdsData, getRandomActiveAd, isAdsCacheValid } = useData();
     const [countdown, setCountdown] = useState(5);
     const [canSkip, setCanSkip] = useState(false);
+    const [currentAd, setCurrentAd] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
-    // Sample advertisement data with active flag and learn more links
-    const ads = [
-        {
-            id: 1,
-            active: true,
-            type: 'video',
-            src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-            title: 'Premium Video Converter Pro',
-            description: 'Upgrade to Pro for faster conversions!',
-            learnMoreLink: 'https://foxbeep.com'
-        },
-        {
-            id: 2,
-            active: true,
-            type: 'image',
-            src: 'https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=800&h=600&fit=crop',
-            title: 'CloudStorage Pro',
-            description: 'Save your converted files in the cloud securely!',
-            learnMoreLink: 'https://foxbeep.com'
-        },
-        {
-            id: 3,
-            active: false,
-            type: 'image',
-            src: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=800&h=600&fit=crop',
-            title: 'Video Editor Suite',
-            description: 'Edit your videos like a pro with our advanced tools!',
-            learnMoreLink: 'https://foxbeep.com'
-        },
-        {
-            id: 4,
-            active: true,
-            type: 'image',
-            src: 'https://images.unsplash.com/photo-1551650975-87deedd944c3?w=800&h=600&fit=crop',
-            title: 'Media Backup Solutions',
-            description: 'Never lose your precious files again with our backup service!',
-            learnMoreLink: 'https://foxbeep.com'
-        }
-    ];
-
-    // Filter only active ads and select one randomly
-    const [currentAd] = useState(() => {
-        const activeAds = ads.filter(ad => ad.active);
-        return activeAds.length > 0 ? activeAds[Math.floor(Math.random() * activeAds.length)] : null;
-    });
-
+    // Fetch ads if needed when modal opens
     useEffect(() => {
-        if (!isOpen) {
-            setCountdown(5);
+        if (isOpen) {
+            const loadAds = async () => {
+                try {
+                    setLoading(true);
+                    setError(null);
+                    
+                    // Check if we need to fetch fresh ads data
+                    if (!adsData || !isAdsCacheValid()) {
+                        await fetchAdsData(true); // Force refresh if cache is invalid
+                    }
+                    
+                    // Get a random active ad from the context
+                    const randomAd = getRandomActiveAd();
+                    
+                    if (randomAd) {
+                        setCurrentAd(randomAd);
+                        // Set countdown based on ad's skipDelay or default to 5
+                        const skipDelay = randomAd.skipDelay || 5;
+                        setCountdown(skipDelay);
+                    } else {
+                        setError('No active ads available');
+                    }
+                } catch (err) {
+                    console.error('Error loading ads:', err);
+                    setError('Failed to load ads');
+                } finally {
+                    setLoading(false);
+                }
+            };
+            
+            loadAds();
+        }
+    }, [isOpen, adsData, fetchAdsData, getRandomActiveAd, isAdsCacheValid]);
+
+    // Handle countdown timer
+    useEffect(() => {
+        if (!isOpen || !currentAd) {
             setCanSkip(false);
             return;
         }
+
+        const initialCountdown = currentAd.skipDelay || 5;
+        setCountdown(initialCountdown);
 
         const timer = setInterval(() => {
             setCountdown((prev) => {
@@ -70,6 +68,17 @@ const AdModal = ({ isOpen, onClose, onAdComplete }) => {
         }, 1000);
 
         return () => clearInterval(timer);
+    }, [isOpen, currentAd]);
+
+    // Reset modal state when closed
+    useEffect(() => {
+        if (!isOpen) {
+            setCurrentAd(null);
+            setCountdown(5);
+            setCanSkip(false);
+            setError(null);
+            setLoading(false);
+        }
     }, [isOpen]);
 
     const handleSkip = () => {
@@ -86,11 +95,62 @@ const AdModal = ({ isOpen, onClose, onAdComplete }) => {
     const handleLearnMore = () => {
         if (currentAd && currentAd.learnMoreLink) {
             window.open(currentAd.learnMoreLink, '_blank');
+            
+            // Track click if enabled
+            if (currentAd.trackClicks) {
+                // You can implement click tracking here
+                console.log('Ad clicked:', currentAd._id);
+            }
         }
     };
 
-    // If no active ads or modal is not open, don't render
-    if (!isOpen || !currentAd) return null;
+    // Track impression when ad is shown
+    useEffect(() => {
+        if (currentAd && currentAd.trackImpressions) {
+            // You can implement impression tracking here
+            console.log('Ad impression:', currentAd._id);
+        }
+    }, [currentAd]);
+
+    // Don't render if modal is not open
+    if (!isOpen) return null;
+
+    // Loading state
+    if (loading) {
+        return (
+            <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-2 sm:p-4">
+                <div className="bg-white rounded-xl sm:rounded-2xl w-full max-w-xs sm:max-w-lg lg:max-w-2xl p-8 text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                    <p className="text-gray-600">Loading advertisement...</p>
+                </div>
+            </div>
+        );
+    }
+
+    // Error state
+    if (error) {
+        return (
+            <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-2 sm:p-4">
+                <div className="bg-white rounded-xl sm:rounded-2xl w-full max-w-xs sm:max-w-lg lg:max-w-2xl p-8 text-center">
+                    <X className="h-12 w-12 text-red-500 mx-auto mb-4" />
+                    <p className="text-gray-600 mb-4">{error}</p>
+                    <button
+                        onClick={handleClose}
+                        className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg"
+                    >
+                        Close
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    // No ad available
+    if (!currentAd) {
+        return null;
+    }
+
+    const initialCountdown = currentAd.skipDelay || 5;
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-2 sm:p-4">
@@ -100,6 +160,9 @@ const AdModal = ({ isOpen, onClose, onAdComplete }) => {
                     <div className="flex items-center space-x-2">
                         <Play size={16} className="sm:w-5 sm:h-5" />
                         <span className="font-semibold text-sm sm:text-base">Advertisement</span>
+                        {currentAd.campaignName && (
+                            <span className="text-xs opacity-75">- {currentAd.campaignName}</span>
+                        )}
                     </div>
                     <button
                         onClick={handleClose}
@@ -127,7 +190,7 @@ const AdModal = ({ isOpen, onClose, onAdComplete }) => {
                             className="w-full h-40 sm:h-48 md:h-56 lg:h-64 bg-cover bg-center relative"
                             style={{ backgroundImage: `url(${currentAd.src})` }}
                         >
-                            <div className="absolute inset-0 bg-black bg-opacity-30"></div>
+                            <div className="absolute inset-0  bg-opacity-30"></div>
                         </div>
                     )}
 
@@ -146,7 +209,6 @@ const AdModal = ({ isOpen, onClose, onAdComplete }) => {
                             </button>
                         )}
                     </div>
-
                 </div>
 
                 {/* Ad Info */}
@@ -167,17 +229,16 @@ const AdModal = ({ isOpen, onClose, onAdComplete }) => {
                             onClick={handleLearnMore}
                             className="cursor-pointer bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white px-4 sm:px-6 py-2 rounded-full font-medium transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-lg text-sm sm:text-base"
                         >
-                            Learn More
+                            {currentAd.buttonText || 'Learn More'}
                         </button>
                     </div>
                 </div>
-
 
                 {/* Progress Bar */}
                 <div className="h-1 bg-gray-200">
                     <div
                         className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-1000 ease-linear"
-                        style={{ width: `${((5 - countdown) / 5) * 100}%` }}
+                        style={{ width: `${((initialCountdown - countdown) / initialCountdown) * 100}%` }}
                     ></div>
                 </div>
             </div>

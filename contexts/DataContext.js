@@ -15,12 +15,14 @@ export const DataProvider = ({ children }) => {
   const [heroData, setHeroData] = useState(null);
   const [companyData, setCompanyData] = useState(null);
   const [converterData, setConverterData] = useState({});
+  const [adsData, setAdsData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
  
   const lastFetchRef = useRef(0);
   const fetchingRef = useRef(false);
   const converterFetchingRef = useRef({});
+  const adsFetchingRef = useRef(false);
  
   const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
@@ -120,6 +122,62 @@ export const DataProvider = ({ children }) => {
       }
     }
   }, [companyData]);
+
+  const fetchAdsData = useCallback(async (forceRefresh = false) => {
+    const now = Date.now();
+   
+    if (adsFetchingRef.current && !forceRefresh) {
+      return adsData;
+    }
+   
+    // Check if we have cached data that's still valid
+    if (!forceRefresh && adsData && adsData._fetchedAt && 
+        (now - adsData._fetchedAt) < CACHE_DURATION) {
+      return adsData;
+    }
+
+    adsFetchingRef.current = true;
+
+    try {
+      const response = await fetch('https://setting-panel.vercel.app/api/admin/ads');
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      
+      if (result.success && result.data) {
+        const processedAdsData = {
+          allAds: result.data,
+          activeAds: result.data.filter(ad => ad.active === true),
+          _fetchedAt: now
+        };
+        
+        setAdsData(processedAdsData);
+        return processedAdsData;
+      } else {
+        throw new Error('Invalid ads API response format');
+      }
+    } catch (err) {
+      console.error('Error fetching ads data:', err);
+     
+      // Use fallback data if API fails and we don't have existing data
+      if (!adsData) {
+        const fallbackData = {
+          allAds: [],
+          activeAds: [],
+          _fetchedAt: now
+        };
+        setAdsData(fallbackData);
+        return fallbackData;
+      }
+      
+      return adsData;
+    } finally {
+      adsFetchingRef.current = false;
+    }
+  }, [adsData]);
 
   const fetchConverterData = useCallback(async (converterId, forceRefresh = false) => {
     const now = Date.now();
@@ -223,33 +281,55 @@ export const DataProvider = ({ children }) => {
     await Promise.all(promises);
   }, [fetchConverterData]);
 
+  // Helper function to get a random active ad
+  const getRandomActiveAd = useCallback(() => {
+    if (!adsData || !adsData.activeAds || adsData.activeAds.length === 0) {
+      return null;
+    }
+    
+    const randomIndex = Math.floor(Math.random() * adsData.activeAds.length);
+    return adsData.activeAds[randomIndex];
+  }, [adsData]);
+
+  // Helper function to check if ads cache is valid
+  const isAdsCacheValid = useCallback(() => {
+    const now = Date.now();
+    return adsData && adsData._fetchedAt && (now - adsData._fetchedAt) < CACHE_DURATION;
+  }, [adsData]);
+
   // Initial fetch - only runs once on mount
   useEffect(() => {
     const fetchAllData = async () => {
       await Promise.all([
         fetchHeroData(),
         fetchCompanyData(),
-        fetchAllConverterData()
+        fetchAllConverterData(),
+        fetchAdsData()
       ]);
       setLoading(false); // Only set loading to false after all data is fetched
     };
     
     fetchAllData();
-  }, [fetchHeroData, fetchCompanyData, fetchAllConverterData]);
+  }, [fetchHeroData, fetchCompanyData, fetchAllConverterData, fetchAdsData]);
 
   const refetch = useCallback(async () => {
     setLoading(true);
     await Promise.all([
       fetchHeroData(true),
       fetchCompanyData(true),
-      fetchAllConverterData(true)
+      fetchAllConverterData(true),
+      fetchAdsData(true)
     ]);
     setLoading(false);
-  }, [fetchHeroData, fetchCompanyData, fetchAllConverterData]);
+  }, [fetchHeroData, fetchCompanyData, fetchAllConverterData, fetchAdsData]);
 
   const refetchConverter = useCallback(async (converterId) => {
     return await fetchConverterData(converterId, true);
   }, [fetchConverterData]);
+
+  const refetchAds = useCallback(async () => {
+    return await fetchAdsData(true);
+  }, [fetchAdsData]);
 
   const getConverterData = useCallback((converterId) => {
     return converterData[converterId] || null;
@@ -267,17 +347,33 @@ export const DataProvider = ({ children }) => {
   }, [converterData]);
 
   const value = {
+    // Data states
     heroData,
     companyData,
     converterData,
+    adsData,
     loading,
     error,
+    
+    // Refetch functions
     refetch,
     refetchConverter,
+    refetchAds,
+    
+    // Fetch functions
     fetchConverterData,
+    fetchAdsData,
+    
+    // Getter functions
     getConverterData,
+    getRandomActiveAd,
+    
+    // Cache validation functions
     isCacheValid,
     isConverterCacheValid,
+    isAdsCacheValid,
+    
+    // Constants
     CONVERTER_IDS
   };
 
