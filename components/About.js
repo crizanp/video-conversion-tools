@@ -1,6 +1,7 @@
 import React from 'react';
 import { ChevronRight, Globe, Shield, Zap, Award } from 'lucide-react';
 import { useData } from '../contexts/DataContext'; // Adjust path as needed
+import { HeaderAd } from './ads/AdPlacements';
 
 export default function AboutSection() {
   const { heroData, loading, error } = useData();
@@ -70,6 +71,7 @@ export default function AboutSection() {
           <div className="absolute top-1/4 right-1/3 w-80 h-80 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
         </div>
       </div>
+      <HeaderAd className="mb-6" />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
         {/* Section Header - Now Dynamic */}
