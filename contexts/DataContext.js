@@ -1,5 +1,6 @@
 import AnimatedLoader from '@/components/AnimatedLoading';
 import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import { useRouter } from 'next/router';
 
 const DataContext = createContext();
 
@@ -11,9 +12,10 @@ export const useData = () => {
   return context;
 };
 
-export const DataProvider = ({ children }) => {
+export const DataProvider = ({ children, initialCompanyData = null }) => {
+  const router = useRouter();
   const [heroData, setHeroData] = useState(null);
-  const [companyData, setCompanyData] = useState(null);
+  const [companyData, setCompanyData] = useState(initialCompanyData);
   const [converterData, setConverterData] = useState({});
   const [adsData, setAdsData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -35,6 +37,79 @@ export const DataProvider = ({ children }) => {
     'mov-to-mp4',
     'mp4-to-webm'
   ];
+
+  // Generate dynamic SEO data based on current route
+  const getSEOData = useCallback(() => {
+    const companyName = companyData?.companyName || 'Foxbeep';
+    const baseSEO = companyData?.seo || {};
+    const currentPath = router.asPath;
+    const pathname = router.pathname;
+    
+    // Default SEO data
+    let seoData = {
+      title: `${companyName} | Fast & Free Video Format Converter`,
+      description: 'Convert video formats easily with our powerful online tool. Free, fast and secure. Convert MP4, WebM, MOV, MKV and more.',
+      keywords: 'video converter, online video converter, free video converter, MP4 converter, video format converter',
+      ogImage: companyData?.logo || '/default-og-image.jpg',
+      canonical: `https://yourdomain.com${currentPath}`,
+      type: 'website'
+    };
+
+    // Route-specific SEO
+    if (pathname === '/') {
+      seoData = {
+        ...seoData,
+        title: baseSEO.title || `${companyName} | Fast & Free Video Format Converter`,
+        description: baseSEO.description || seoData.description,
+        keywords: baseSEO.keywords || seoData.keywords
+      };
+    } else if (pathname.includes('/converter/')) {
+      const converterId = router.query.converterId;
+      const converterPageData = converterData[converterId];
+      
+      if (converterPageData && converterId) {
+        const [fromFormat, , toFormat] = converterId.split('-');
+        seoData = {
+          ...seoData,
+          title: converterPageData.seo?.title || `${fromFormat.toUpperCase()} to ${toFormat.toUpperCase()} Converter | ${companyName}`,
+          description: converterPageData.seo?.description || `Convert ${fromFormat.toUpperCase()} files to ${toFormat.toUpperCase()} format online. Fast, free, and secure video conversion with ${companyName}.`,
+          keywords: converterPageData.seo?.keywords || `${fromFormat} to ${toFormat}, ${fromFormat} converter, ${toFormat} converter, video converter, ${companyName}`,
+          ogImage: converterPageData.hero?.image || seoData.ogImage,
+          type: 'article'
+        };
+      }
+    } else if (pathname === '/about') {
+      seoData = {
+        ...seoData,
+        title: `About Us | ${companyName}`,
+        description: `Learn more about ${companyName} - your trusted partner for fast and reliable video format conversion.`,
+        keywords: `about ${companyName}, video converter company, online tools`
+      };
+    } else if (pathname === '/contact') {
+      seoData = {
+        ...seoData,
+        title: `Contact Us | ${companyName}`,
+        description: `Get in touch with ${companyName}. Contact our support team for help with video conversion.`,
+        keywords: `contact ${companyName}, video converter support, customer service`
+      };
+    } else if (pathname === '/privacy-policy') {
+      seoData = {
+        ...seoData,
+        title: `Privacy Policy | ${companyName}`,
+        description: `Read ${companyName}'s privacy policy to understand how we protect your data.`,
+        keywords: `privacy policy, ${companyName} privacy, data protection`
+      };
+    } else if (pathname === '/terms-of-service') {
+      seoData = {
+        ...seoData,
+        title: `Terms of Service | ${companyName}`,
+        description: `Review the terms of service for ${companyName}'s video conversion tools.`,
+        keywords: `terms of service, ${companyName} terms, user agreement`
+      };
+    }
+
+    return seoData;
+  }, [router.asPath, router.pathname, router.query, companyData, converterData]);
 
   const fetchHeroData = useCallback(async (forceRefresh = false) => {
     const now = Date.now();
@@ -66,7 +141,6 @@ export const DataProvider = ({ children }) => {
       console.error('Error fetching hero data:', err);
       setError(err.message);
      
-      // Use fallback data if API fails and we don't have existing data
       if (!heroData) {
         const fallbackData = {
           hero: {
@@ -88,7 +162,6 @@ export const DataProvider = ({ children }) => {
   const fetchCompanyData = useCallback(async (forceRefresh = false) => {
     const now = Date.now();
    
-    // Check if we have cached data that's still valid and not forcing refresh
     if (!forceRefresh && companyData && (now - lastFetchRef.current) < CACHE_DURATION) {
       return;
     }
@@ -107,7 +180,6 @@ export const DataProvider = ({ children }) => {
     } catch (err) {
       console.error('Error fetching company data:', err);
      
-      // Use fallback data if API fails and we don't have existing data
       if (!companyData) {
         const fallbackData = {
           companyName: "Foxbeep",
@@ -130,7 +202,6 @@ export const DataProvider = ({ children }) => {
       return adsData;
     }
    
-    // Check if we have cached data that's still valid
     if (!forceRefresh && adsData && adsData._fetchedAt && 
         (now - adsData._fetchedAt) < CACHE_DURATION) {
       return adsData;
@@ -162,7 +233,6 @@ export const DataProvider = ({ children }) => {
     } catch (err) {
       console.error('Error fetching ads data:', err);
      
-      // Use fallback data if API fails and we don't have existing data
       if (!adsData) {
         const fallbackData = {
           allAds: [],
@@ -182,18 +252,15 @@ export const DataProvider = ({ children }) => {
   const fetchConverterData = useCallback(async (converterId, forceRefresh = false) => {
     const now = Date.now();
     
-    // Validate converter ID
     if (!CONVERTER_IDS.includes(converterId)) {
       console.error(`Invalid converter ID: ${converterId}`);
       return null;
     }
    
-    // Check if we're already fetching this converter
     if (converterFetchingRef.current[converterId] && !forceRefresh) {
       return converterData[converterId] || null;
     }
    
-    // Check if we have cached data that's still valid
     if (!forceRefresh && converterData[converterId] && 
         converterData[converterId]._fetchedAt && 
         (now - converterData[converterId]._fetchedAt) < CACHE_DURATION) {
@@ -227,20 +294,19 @@ export const DataProvider = ({ children }) => {
     } catch (err) {
       console.error(`Error fetching converter data for ${converterId}:`, err);
      
-      // Use fallback data if API fails and we don't have existing data
       if (!converterData[converterId]) {
         const fallbackData = {
           hero: {
             title: `${converterId.replace('-', ' ').toUpperCase()} Converter`,
             description: `Convert your ${converterId.split('-')[0].toUpperCase()} files to ${converterId.split('-')[2].toUpperCase()} format with our lightning-fast converter.`,
-            image: "https://cdn-site-assets.veed.io/cdn-cgi/image/width=1024,quality=75,format=auto/MKV_to_MP_4_bdd29d1ce7/MKV_to_MP_4_bdd29d1ce7.png",
+            image: "",
             imageAlt: `${converterId} converter`,
             imagePublicId: null
           },
           ways: {
             title: "How to Convert",
             description: `Follow these simple steps to convert your ${converterId.split('-')[0].toUpperCase()} files`,
-            image: "https://cdn-site-assets.veed.io/cdn-cgi/image/width=1024,quality=75,format=auto/MKV_to_MP_4_bdd29d1ce7/MKV_to_MP_4_bdd29d1ce7.png",
+            image: "",
             imageAlt: "Conversion process",
             imagePublicId: null,
             steps: [
@@ -275,13 +341,11 @@ export const DataProvider = ({ children }) => {
     }
   }, [converterData]);
 
-  // Fetch all converter data
   const fetchAllConverterData = useCallback(async (forceRefresh = false) => {
     const promises = CONVERTER_IDS.map(id => fetchConverterData(id, forceRefresh));
     await Promise.all(promises);
   }, [fetchConverterData]);
 
-  // Helper function to get a random active ad
   const getRandomActiveAd = useCallback(() => {
     if (!adsData || !adsData.activeAds || adsData.activeAds.length === 0) {
       return null;
@@ -291,26 +355,24 @@ export const DataProvider = ({ children }) => {
     return adsData.activeAds[randomIndex];
   }, [adsData]);
 
-  // Helper function to check if ads cache is valid
   const isAdsCacheValid = useCallback(() => {
     const now = Date.now();
     return adsData && adsData._fetchedAt && (now - adsData._fetchedAt) < CACHE_DURATION;
   }, [adsData]);
 
-  // Initial fetch - only runs once on mount
   useEffect(() => {
     const fetchAllData = async () => {
       await Promise.all([
         fetchHeroData(),
-        fetchCompanyData(),
+        initialCompanyData ? Promise.resolve() : fetchCompanyData(),
         fetchAllConverterData(),
         fetchAdsData()
       ]);
-      setLoading(false); // Only set loading to false after all data is fetched
+      setLoading(false);
     };
     
     fetchAllData();
-  }, [fetchHeroData, fetchCompanyData, fetchAllConverterData, fetchAdsData]);
+  }, [fetchHeroData, fetchCompanyData, fetchAllConverterData, fetchAdsData, initialCompanyData]);
 
   const refetch = useCallback(async () => {
     setLoading(true);
@@ -355,6 +417,9 @@ export const DataProvider = ({ children }) => {
     loading,
     error,
     
+    // SEO function
+    getSEOData,
+    
     // Refetch functions
     refetch,
     refetchConverter,
@@ -377,7 +442,6 @@ export const DataProvider = ({ children }) => {
     CONVERTER_IDS
   };
 
-  // Show simple loader while loading
   if (loading) {
     return <AnimatedLoader />;
   }
