@@ -6,7 +6,7 @@ export default function ConversionSteps({
     {
       number: 1,
       heading: "Upload your file",
-      description: "Upload your audio or video file. VEED supports WAV and all other popular video and audio file formats."
+      description: "Upload your audio or video file. The platform supports WAV and all other popular video and audio file formats."
     },
     {
       number: 2,

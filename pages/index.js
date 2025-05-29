@@ -131,10 +131,8 @@ function PageContent() {
 export default function Home({ ssrCompanyData }) {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black">
-      {/* SEO Head uses server-side data */}
       <SEOHead companyData={ssrCompanyData} />
       
-      {/* Page content uses DataContext for client-side functionality */}
       <DataProvider initialCompanyData={ssrCompanyData}>
         <PageContent />
       </DataProvider>
@@ -142,12 +140,10 @@ export default function Home({ ssrCompanyData }) {
   );
 }
 
-// Server-side data fetching for SEO
 export async function getStaticProps() {
   let companyData = null;
 
   try {
-    // Fetch only company data for SEO (lightweight)
     const companyResponse = await fetch('https://setting-panel.vercel.app/api/admin/company/details');
     if (companyResponse.ok) {
       const companyResult = await companyResponse.json();
@@ -159,7 +155,6 @@ export async function getStaticProps() {
     console.error('Error fetching company data for SEO:', error);
   }
 
-  // Provide fallback data if API call fails
   if (!companyData) {
     companyData = {
       companyName: "Foxbeep",
@@ -184,7 +179,6 @@ export async function getStaticProps() {
     props: {
       ssrCompanyData: companyData,
     },
-    // Revalidate every 5 minutes (300 seconds)
     revalidate: 300,
   };
 }
