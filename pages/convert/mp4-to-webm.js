@@ -29,7 +29,7 @@ export default function Mp4ToWebmPage() {
   const defaultHeroData = {
     title: "MP4 to WebM Converter",
     description: "Convert your MP4 files to WebM format with our fast, reliable converter. Optimized for web use with no quality compromise.",
-    image: "https://cdn-site-assets.veed.io/cdn-cgi/image/width=1024,quality=75,format=auto/MKV_to_MP_4_bdd29d1ce7/MKV_to_MP_4_bdd29d1ce7.png",
+    image: "https://res.cloudinary.com/dg5aeihzx/image/upload/v1748482965/hero-/ihufiif0lfp1cns7bwrp.png",
     imageAlt: "MP4 to WebM converter illustration"
   };
 

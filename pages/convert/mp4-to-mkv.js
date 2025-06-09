@@ -29,7 +29,7 @@ export default function Mp4ToMkvPage() {
   const defaultHeroData = {
     title: "MP4 to MKV",
     description: "Transform your MP4 files to MKV format with our lightning-fast converter. No quality loss, no watermarks.",
-    image: "https://cdn-site-assets.veed.io/cdn-cgi/image/width=1024,quality=75,format=auto/MKV_to_MP_4_bdd29d1ce7/MKV_to_MP_4_bdd29d1ce7.png",
+    image: "https://res.cloudinary.com/dg5aeihzx/image/upload/v1748482965/hero-/ihufiif0lfp1cns7bwrp.png",
     imageAlt: "MP4 to MKV converter illustration"
   };
 
