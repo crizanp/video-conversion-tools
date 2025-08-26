@@ -6,6 +6,7 @@ import Footer from '@/components/Footer';
 import AdSenseAd from '@/components/ads/AdSenseAd';
 import ToolsNavbar from '@/components/convert/toolsNavbar';
 import FeaturesSection from '@/components/tools/FeaturesSection';
+import { HeaderAd } from '@/components/ads/AdPlacements';
 
 export default function Mp4ToWebmConverter() {
     const [selectedFiles, setSelectedFiles] = useState([]);

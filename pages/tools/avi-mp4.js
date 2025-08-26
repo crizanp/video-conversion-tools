@@ -9,6 +9,7 @@ import ToolsNavbar from '@/components/convert/toolsNavbar';
 import AdSenseAd from '@/components/ads/AdSenseAd';
 import HeroSection from '@/components/tools/Hero';
 import FeaturesSection from '@/components/tools/FeaturesSection';
+import { HeaderAd } from '@/components/ads/AdPlacements';
 
 export default function AviToMp4Converter() {
     const [selectedFiles, setSelectedFiles] = useState([]);

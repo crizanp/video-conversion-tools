@@ -9,6 +9,7 @@ import ToolsNavbar from '@/components/convert/toolsNavbar';
 import HeroSection from '@/components/tools/Hero';
 import FeaturesSection from '@/components/tools/FeaturesSection';
 import AdSenseAd from '@/components/ads/AdSenseAd';
+import { HeaderAd } from '@/components/ads/AdPlacements';
 
 export default function MovToMp4Converter() {
     const [selectedFiles, setSelectedFiles] = useState([]);
