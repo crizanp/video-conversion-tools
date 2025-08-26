@@ -380,7 +380,7 @@ function MkvToMp4SEOHead({ companyData, heroData }) {
   );
 }
 
-export default function MkvToMp4Page() {
+export default function MkvToMp4Page({ initialCompanyData = null, initialConverterData = null }) {
   const { 
     getConverterData, 
     fetchConverterData, 
@@ -388,12 +388,13 @@ export default function MkvToMp4Page() {
     loading: globalLoading,
     companyData
   } = useData();
-  
-  const [heroData, setHeroData] = useState(null);
-  const [waysData, setWaysData] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+
+  // Use server-provided initial data when available to avoid duplicate client fetches
+  const [heroData, setHeroData] = useState(initialConverterData?.hero || null);
+  const [waysData, setWaysData] = useState(initialConverterData?.ways || null);
+  const [isLoading, setIsLoading] = useState(!initialConverterData && true);
   const [error, setError] = useState(null);
-  
+
   const converterId = 'mkv-to-mp4';
 
   // Default fallback hero data
@@ -520,8 +521,8 @@ export default function MkvToMp4Page() {
       }
     };
 
-    // Only load if global loading is complete
-    if (!globalLoading) {
+    // Only load if global loading is complete AND we don't have server-provided data
+    if (!globalLoading && !(initialConverterData && initialConverterData.hero && initialConverterData.ways)) {
       loadData();
     }
   }, [converterId, getConverterData, fetchConverterData, isConverterCacheValid, globalLoading]);
@@ -627,4 +628,41 @@ export default function MkvToMp4Page() {
       </main>
     </div>
   );
+}
+
+// Server-side fetch for initial company and converter data
+export async function getServerSideProps(context) {
+  const API_BASE_URL = process.env.API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'https://setting-panel.vercel.app';
+  const converterId = 'mkv-to-mp4';
+
+  // Fetch company details
+  let initialCompanyData = null;
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/admin/company/details`);
+    if (res.ok) {
+      const json = await res.json();
+      if (json.success && json.data) initialCompanyData = json.data;
+    }
+  } catch (err) {
+    // ignore - client will use fallback
+  }
+
+  // Fetch converter settings
+  let initialConverterData = null;
+  try {
+    const res2 = await fetch(`${API_BASE_URL}/api/converter/settings?converterId=${converterId}`);
+    if (res2.ok) {
+      const json2 = await res2.json();
+      if (json2.success && json2.data) initialConverterData = json2.data;
+    }
+  } catch (err) {
+    // ignore - client will use fallback
+  }
+
+  return {
+    props: {
+      initialCompanyData,
+      initialConverterData
+    }
+  };
 }
