@@ -5,6 +5,7 @@ import FileConverterHero from '@/components/convert/hero';
 import FileFormatsExplanation from '@/components/convert/FileFormatsExplanation';
 import ConversionSteps from '@/components/convert/HowToUse';
 import ConversionNavbar from '@/components/convert/ConversionNavbar';
+import AdSenseAd from '@/components/ads/AdSenseAd';
 import FAQ from '@/components/convert/faqSection';
 import { HelpCircle } from 'lucide-react';
 import Footer from '@/components/Footer';
@@ -552,6 +553,9 @@ export default function MkvToMp4Page() {
       {/* Main Content with Schema Markup */}
       <main role="main" itemScope itemType="https://schema.org/WebPage">
         <ConversionNavbar convertLink="/tools/mkv-mp4" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <AdSenseAd type="inFeed" style={{ margin: '0 auto', maxWidth: '100%' }} />
+        </div>
         
         <section itemScope itemType="https://schema.org/SoftwareApplication">
           <FileConverterHero

@@ -7,6 +7,7 @@ import ToolsNavbar from '@/components/convert/toolsNavbar';
 import FeaturesSection from '@/components/tools/FeaturesSection';
 import AdModal from '@/components/AdsModal';
 import { FooterAd, HeaderAd } from '@/components/ads/AdPlacements';
+import AdSenseAd from '@/components/ads/AdSenseAd';
 export default function Mp4ToMkvConverter() {
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [isConverting, setIsConverting] = useState(false);
@@ -250,6 +251,9 @@ export default function Mp4ToMkvConverter() {
     return (
         <>
             <ToolsNavbar />
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                <AdSenseAd type="inFeed" style={{ margin: '0 auto', maxWidth: '100%' }} />
+            </div>
             <HeaderAd/>
             <div className="bg-white min-h-screen flex flex-col items-start py-8 px-4">
                 <div className="max-w-7xl px-4 sm:px-6 lg:px-8 mx-auto w-full">

@@ -6,6 +6,7 @@ import FileConverterHero from '@/components/convert/hero';
 import Footer from '@/components/Footer';
 import ConversionNavbar from '@/components/convert/ConversionNavbar';
 import ToolsNavbar from '@/components/convert/toolsNavbar';
+import AdSenseAd from '@/components/ads/AdSenseAd';
 import HeroSection from '@/components/tools/Hero';
 import FeaturesSection from '@/components/tools/FeaturesSection';
 
@@ -265,6 +266,12 @@ export default function AviToMp4Converter() {
                                 <p className="text-gray-400 text-sm">Max 500MB per file, multiple files allowed</p>
                             </div>
                         </div>
+
+                        {/* Ad unit - placed below the upload area (not above the header) */}
+                        <div className="my-8 w-full flex justify-center">
+                            <AdSenseAd type="inArticle" />
+                        </div>
+
                         {/* Selected Files */}
                         {selectedFiles.length > 0 && (
                             <div className="border-t border-blue-100 p-4 py-8">

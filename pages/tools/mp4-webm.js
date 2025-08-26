@@ -3,6 +3,7 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { Film, Upload, Check, X, Download, Play, Settings, AlertCircle, Monitor, Save, Share2 } from 'lucide-react';
 import Footer from '@/components/Footer';
+import AdSenseAd from '@/components/ads/AdSenseAd';
 import ToolsNavbar from '@/components/convert/toolsNavbar';
 import FeaturesSection from '@/components/tools/FeaturesSection';
 
@@ -354,6 +355,13 @@ export default function Mp4ToWebmConverter() {
                                 </button>
                             )}
                         </div>
+
+                        {/* Ad unit - placed below the upload area (not above the header) */}
+                        <div className="my-8 w-full flex justify-center">
+                            <AdSenseAd type="inArticle" />
+                        </div>
+
+                        {/* Selected Files */}
 
                         {/* Progress Bar */}
                         {isConverting && progress > 0 && (

@@ -10,6 +10,7 @@ import { HelpCircle } from 'lucide-react';
 import Footer from '@/components/Footer';
 import { useData } from '@/contexts/DataContext'; 
 import AnimatedLoader from '@/components/AnimatedLoading';
+import AdSenseAd from '@/components/ads/AdSenseAd';
 
 // SEO Head Component for AVI to MP4 Converter
 function AviToMp4SEOHead({ companyData, heroData }) {
@@ -530,6 +531,9 @@ export default function AviToMp4Page() {
 
       {/* Main Content with Schema Markup */}
       <main role="main" itemScope itemType="https://schema.org/WebPage">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <AdSenseAd type="inFeed" style={{ margin: '0 auto', maxWidth: '100%' }} />
+        </div>
         <ConversionNavbar convertLink="/tools/avi-mp4" />
         
         <section itemScope itemType="https://schema.org/SoftwareApplication">

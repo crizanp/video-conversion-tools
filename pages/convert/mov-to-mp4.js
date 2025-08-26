@@ -9,6 +9,7 @@ import { HelpCircle } from 'lucide-react';
 import Footer from '@/components/Footer';
 import { useData } from '@/contexts/DataContext'; 
 import AnimatedLoader from '@/components/AnimatedLoading';
+import AdSenseAd from '@/components/ads/AdSenseAd';
 
 export default function MovToMp4Page() {
   const { 
@@ -150,6 +151,9 @@ export default function MovToMp4Page() {
   return (
     <div>
       <ConversionNavbar convertLink="/tools/mov-mp4" />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <AdSenseAd type="inFeed" style={{ margin: '0 auto', maxWidth: '100%' }} />
+      </div>
       
       <FileConverterHero
         title={currentHeroData.title}

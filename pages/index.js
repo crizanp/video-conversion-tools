@@ -4,6 +4,7 @@ import { Video, Play } from 'lucide-react';
 import { DataProvider } from '@/contexts/DataContext';
 import Navbar from '@/components/Navbar';
 import HeroSection from '@/components/HeroSection';
+import AdSenseAd from '@/components/ads/AdSenseAd';
 import InstantConversionSection from '@/components/InstantVideo';
 import FreeServiceSection from '@/components/pricing';
 import VideoConversionServices from '@/components/features';
@@ -448,6 +449,14 @@ function WatchDemoSection() {
         </div>
       </div>
     </section>
+  );
+}
+
+function HomepageAds() {
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <AdSenseAd type="inFeed" style={{ margin: '0 auto', maxWidth: '100%' }} />
+    </div>
   );
 }
 
