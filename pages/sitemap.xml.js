@@ -1,4 +1,4 @@
-import { SITE_URL } from '../../utils/siteConfig';
+import { SITE_URL } from '../utils/siteConfig';
 
 const EXCLUDE = ['/api', '/_next', '/static'];
 
