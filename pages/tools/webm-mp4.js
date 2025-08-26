@@ -226,6 +226,10 @@ export default function WebmToMp4Converter() {
     return (
         <>
             <ToolsNavbar />
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                <AdSenseAd type="inFeed" style={{ margin: '0 auto', maxWidth: '100%' }} />
+            </div>
+            <HeaderAd/>
             <div className="bg-white min-h-screen flex flex-col items-start py-8 px-4">
                 <div className="max-w-7xl px-4 sm:px-6 lg:px-8 mx-auto w-full">
                     {/* Main Content */}
