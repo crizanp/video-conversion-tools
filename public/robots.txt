@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Sitemap: https://tools.foxbeep.com/sitemap.xml
+
+User-agent: Yandex
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /

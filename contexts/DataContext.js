@@ -49,11 +49,11 @@ export const DataProvider = ({ children, initialCompanyData = null }) => {
     const currentPath = router.asPath;
     const pathname = router.pathname;
     
-    // Default SEO data
+    // Default SEO data (improved: focused, high-value keywords & CTA)
     let seoData = {
-      title: `${companyName} | Fast & Free Video Format Converter`,
-      description: 'Convert video formats easily with our powerful online tool. Free, fast and secure. Convert MP4, WebM, MOV, MKV and more.',
-      keywords: 'video converter, online video converter, free video converter, MP4 converter, video format converter',
+      title: `${companyName} | Fast Online Video Converter — Convert MP4, WebM & More`,
+      description: `Fast online video converter. Convert MP4, WebM, MOV, MKV, AVI and more in seconds. Free, secure and no installs required. Batch processing supported.`,
+      keywords: 'fast online video converter, convert video online, MP4 to WebM, MP4 converter, WebM converter, MOV to MP4, AVI to MP4, MKV converter, batch video converter, free video converter, convert video formats online',
       ogImage: companyData?.logo || '/default-og-image.jpg',
       canonical: `${SITE_URL}${currentPath}`,
       type: 'website'
