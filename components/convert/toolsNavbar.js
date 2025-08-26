@@ -294,10 +294,10 @@ export default function ToolsNavbar() {
         </div>
       </div>
     </nav>
-    {/* Static AdSense block shown immediately below the navbar on pages using this component */}
+    {/* Static AdSense block shown immediately below the navbar on pages using this component
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
       <AdSenseAd type="inFeed" style={{ margin: '0 auto', maxWidth: '100%' }} />
-    </div>
+    </div> */}
     </>
   );
 }
