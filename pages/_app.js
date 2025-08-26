@@ -6,7 +6,6 @@ import { AdSenseProvider } from '@/hooks/useAdSense';
 import { DataProvider, useData } from '../contexts/DataContext';
 import '../styles/globals.css';
 import AdSenseScript from '@/components/AdSenseScript';
-import GlobalAds from '@/components/GlobalAds';
 
 // Enhanced SEO Component with comprehensive optimization
 function DynamicSEO() {
@@ -521,8 +520,7 @@ function AppContent({ Component, pageProps }) {
 export default function App({ Component, pageProps }) {
   return (
     <AdSenseProvider>
-  <AdSenseScript />
-  <GlobalAds />
+      <AdSenseScript />
       <DataProvider>
         <AppContent Component={Component} pageProps={pageProps} />
       </DataProvider>

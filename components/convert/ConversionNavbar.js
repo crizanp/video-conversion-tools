@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Video, Menu, X } from 'lucide-react';
 import Link from 'next/link';
 import { useData } from '../../contexts/DataContext'; // Adjust path as needed
+import AdSenseAd from '../ads/AdSenseAd';
 
 export default function ConversionNavbar({ convertLink = "/tools/converter" }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -51,7 +52,8 @@ export default function ConversionNavbar({ convertLink = "/tools/converter" }) {
   const companyName = companyData?.companyName || 'Foxbeep';
 
   return (
-    <nav className={`sticky top-0 z-50 transition-all duration-300 ${scrolled ? 'bg-black bg-opacity-90 backdrop-blur-md shadow-lg' : 'bg-white relative'
+    <>
+      <nav className={`sticky top-0 z-50 transition-all duration-300 ${scrolled ? 'bg-black bg-opacity-90 backdrop-blur-md shadow-lg' : 'bg-white relative'
       }`}>
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
@@ -222,6 +224,13 @@ export default function ConversionNavbar({ convertLink = "/tools/converter" }) {
           </Link>
         </div>
       </div>
-    </nav>
+      </nav>
+
+      {/* Static AdSense block shown immediately below the navbar on pages using this component */}
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        {/* In-feed / responsive ad (adjust type as needed) */}
+        <AdSenseAd type="inFeed" style={{ margin: '0 auto', maxWidth: '100%' }} />
+      </div>
+    </>
   );
 }

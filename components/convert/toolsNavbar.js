@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Video, Menu, X, ChevronDown, ChevronUp } from 'lucide-react';
 import Link from 'next/link';
 import { useData } from '../../contexts/DataContext'; // Adjust path as needed
+import AdSenseAd from '../ads/AdSenseAd';
 
 export default function ToolsNavbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -77,6 +78,7 @@ export default function ToolsNavbar() {
   const companyName = companyData?.companyName || 'Foxbeep';
 
   return (
+    <>
     <nav className={`sticky top-0 z-50 transition-all duration-300 ${
       scrolled ? 'bg-black bg-opacity-90 backdrop-blur-md shadow-lg' : 'bg-white relative'
     }`}>
@@ -292,5 +294,10 @@ export default function ToolsNavbar() {
         </div>
       </div>
     </nav>
+    {/* Static AdSense block shown immediately below the navbar on pages using this component */}
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <AdSenseAd type="inFeed" style={{ margin: '0 auto', maxWidth: '100%' }} />
+    </div>
+    </>
   );
 }

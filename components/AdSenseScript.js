@@ -17,27 +17,15 @@ const AdSenseScript = () => {
       return;
     }
 
-    // Create and load the AdSense script
+    // Create and load the AdSense script (do NOT enable page-level auto ads here)
     const script = document.createElement('script');
     script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${settings.publisherId}`;
     script.async = true;
     script.crossOrigin = 'anonymous';
-    
-    // Handle script load
+
     script.onload = () => {
       console.log('AdSense script loaded successfully');
-      
-      // Initialize Auto Ads if enabled
-      if (settings.globalSettings?.autoAds) {
-        try {
-          (window.adsbygoogle = window.adsbygoogle || []).push({
-            google_ad_client: settings.publisherId,
-            enable_page_level_ads: true
-          });
-        } catch (error) {
-          console.error('Auto Ads initialization error:', error);
-        }
-      }
+      // Do not push enable_page_level_ads — we only want static ad units
     };
 
     script.onerror = () => {
@@ -53,7 +41,7 @@ const AdSenseScript = () => {
         document.head.removeChild(scriptToRemove);
       }
     };
-  }, [isEnabled, settings?.publisherId, settings?.globalSettings?.autoAds]);
+  }, [isEnabled, settings?.publisherId]);
 
   return null; // This component doesn't render anything
 };
