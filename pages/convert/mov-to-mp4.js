@@ -8,6 +8,7 @@ import FAQ from '@/components/convert/faqSection';
 import { HelpCircle } from 'lucide-react';
 import Footer from '@/components/Footer';
 import { useData } from '@/contexts/DataContext'; 
+import SEO from '@/components/SEO';
 import AnimatedLoader from '@/components/AnimatedLoading';
 import AdSenseAd from '@/components/ads/AdSenseAd';
 
@@ -16,7 +17,8 @@ export default function MovToMp4Page() {
     getConverterData, 
     fetchConverterData, 
     isConverterCacheValid, 
-    loading: globalLoading 
+    loading: globalLoading,
+    getSEOData
   } = useData();
   
   const [heroData, setHeroData] = useState(null);
@@ -150,6 +152,7 @@ export default function MovToMp4Page() {
 
   return (
     <div>
+      {typeof getSEOData === 'function' && <SEO {...getSEOData()} />}
       <ConversionNavbar convertLink="/tools/mov-mp4" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <AdSenseAd type="inFeed" style={{ margin: '0 auto', maxWidth: '100%' }} />
